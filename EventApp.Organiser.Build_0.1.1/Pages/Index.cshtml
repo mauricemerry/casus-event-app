@@ -1,0 +1,37 @@
+﻿@page
+@model EventApp.OrganiserPortal.Pages.LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/pages/login.css" asp-append-version="true" />
+}
+
+<div class="login-shell">
+    <div class="login-card">
+        <div class="login-card-header">
+            <h1>EventApp Organiser</h1>
+            <p>Log in om je evenementen te beheren.</p>
+        </div>
+
+        <form method="post" class="login-form">
+            <div asp-validation-summary="ModelOnly" class="login-validation-summary"></div>
+
+            <div class="login-form-group">
+                <label asp-for="Input.Email"></label>
+                <input asp-for="Input.Email" type="email" />
+                <span asp-validation-for="Input.Email"></span>
+            </div>
+
+            <div class="login-form-group">
+                <label asp-for="Input.Password"></label>
+                <input asp-for="Input.Password" type="password" />
+                <span asp-validation-for="Input.Password"></span>
+            </div>
+
+            <button type="submit" class="login-submit-btn">Inloggen</button>
+        </form>
+    </div>
+</div>

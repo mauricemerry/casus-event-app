@@ -1,0 +1,73 @@
+﻿#EventApp-app {
+    min-height: 100vh;
+    background: linear-gradient(180deg, rgba(6, 10, 24, 0.62) 0%, rgba(8, 11, 26, 0.80) 38%, rgba(8, 11, 26, 0.94) 100%), radial-gradient(circle at 18% 12%, rgba(255, 79, 163, 0.22), transparent 22%), radial-gradient(circle at 78% 10%, rgba(124, 92, 255, 0.26), transparent 24%), url('/images/ui/home-background.png') center top / cover fixed no-repeat;
+    color: var(--text-primary);
+}
+
+    #EventApp-app::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(11,16,32,0.06), rgba(11,16,32,0.22));
+        backdrop-filter: blur(2px);
+        z-index: 0;
+    }
+
+    #EventApp-app > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    #EventApp-app .EventApp-page {
+        display: grid;
+        grid-template-columns: 356px minmax(0, 1fr);
+        gap: 24px;
+        width: min(calc(100% - 32px), var(--misc-shell-width));
+        margin: 18px auto 0;
+        min-height: calc(100vh - 120px);
+        align-items: start;
+    }
+
+    #EventApp-app .EventApp-sidebar {
+        background: var(--misc-panel);
+        border: 1px solid var(--misc-border);
+        box-shadow: var(--misc-shadow);
+    }
+
+    #EventApp-app .EventApp-main {
+        min-width: 0;
+        padding: 0;
+    }
+
+    #EventApp-app .EventApp-status {
+        margin: 12px 0 18px;
+        padding: 28px 34px;
+        border-radius: 28px;
+        background: rgba(12, 18, 34, 0.40);
+        border: 1px solid rgba(245, 247, 251, 0.08);
+        box-shadow: var(--misc-shadow);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        color: var(--text-primary);
+        font-size: clamp(1.9rem, 4vw, 3rem);
+        font-weight: 700;
+        line-height: 1.05;
+    }
+
+        #EventApp-app .EventApp-status::after {
+            content: '\A Resultaten op basis van jouw filter instellingen.';
+            white-space: pre;
+            display: block;
+            margin-top: 10px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+@media (max-width: 1100px) {
+    #EventApp-app .EventApp-page {
+        grid-template-columns: 1fr;
+    }
+}

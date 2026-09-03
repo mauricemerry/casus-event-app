@@ -1,0 +1,24 @@
+﻿:root {
+    --bg: #0B1020;
+    --surface: #12192B;
+    --surface-elevated: #18233A;
+    --text-primary: #F5F7FB;
+    --text-secondary: #AAB4C8;
+    --brand-primary: #7C5CFF;
+    --brand-hover: #9278FF;
+    --brand-active: #6948F0;
+    --accent-glow: #FF4FA3;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --error: #EF4444;
+    --border: #26324D;
+
+    --font-family-base: "Poppins", sans-serif;
+
+    --misc-shell-width: 1440px;
+    --misc-panel: rgba(18, 25, 43, 0.68);
+    --misc-panel-strong: rgba(24, 35, 58, 0.82);
+    --misc-border: rgba(245, 247, 251, 0.09);
+    --misc-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+}
+

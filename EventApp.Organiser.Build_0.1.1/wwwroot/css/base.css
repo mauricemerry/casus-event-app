@@ -1,0 +1,41 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #0b1020;
+    font-family: var(--font-family-base);
+}
+
+body {
+    position: relative;
+    min-height: 100vh;
+    isolation: isolate;
+}
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: -12px;
+        background: linear-gradient(rgba(11, 16, 32, 0.08), rgba(11, 16, 32, 0.9)), url('/images/ui/img_background.png') center / cover no-repeat;
+        filter: blur(4px);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}

@@ -1,0 +1,154 @@
+/* bookmarks.css */
+/* Stijlen voor de bookmark-knop op eventkaarten en de bookmarks-pagina */
+
+/* ─── Bookmark-knop op de eventkaart ─────────────────────────────────────── */
+
+#EventApp-app .EventApp-bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--misc-border);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+/* Het icoon: directe <img> tag, grootte bepaald hier */
+#EventApp-app .EventApp-bookmark-icon {
+    display: block;
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Hover: licht oplichten */
+#EventApp-app .EventApp-bookmark-btn:hover {
+    border-color: var(--accent-glow);
+    background: rgba(255, 79, 163, 0.1);
+}
+
+/* Opgeslagen toestand: roze rand + achtergrond (img src wordt gewisseld via JS) */
+#EventApp-app .EventApp-bookmark-btn.is-bookmarked {
+    border-color: var(--accent-glow);
+    background: rgba(255, 79, 163, 0.15);
+}
+
+/* Kleine klik-animatie */
+#EventApp-app .EventApp-bookmark-btn.is-animating {
+    transform: scale(1.25);
+}
+
+
+/* ─── Bookmarks-pagina layout ─────────────────────────────────────────────── */
+
+/* Variant van .EventApp-page zonder sidebar:
+   overschrijf de twee-koloms grid (356px sidebar + main) naar één kolom.
+   Zo krijgt de kaart exact dezelfde breedte als de main-kolom op de homepagina. */
+#EventApp-app .EventApp-page--no-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+#EventApp-app .EventApp-page--no-sidebar .EventApp-main {
+    padding: 0;
+}
+
+/* Koptekst met titel en teruglink */
+#EventApp-app .EventApp-bookmarks-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 12px 0 18px;
+    flex-wrap: wrap;
+}
+
+#EventApp-app .EventApp-bookmarks-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+#EventApp-app .EventApp-bookmarks-back {
+    font-size: 0.9rem;
+    color: var(--brand-hover);
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#EventApp-app .EventApp-bookmarks-back:hover {
+    color: var(--text-primary);
+}
+
+/* ─── Laadstatus ──────────────────────────────────────────────────────────── */
+
+#EventApp-app .EventApp-bookmarks-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* ─── Lege toestand ───────────────────────────────────────────────────────── */
+
+#EventApp-app .EventApp-bookmarks-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 80px 24px;
+    text-align: center;
+}
+
+/* ─── Fix: [hidden] attribuut wint het niet van display: flex zonder dit ──── */
+/* CSS specificiteit: #EventApp-app .klasse (hoog) > [hidden] (laag).           */
+/* Door [hidden] hier expliciet te herhalen wint deze regel het altijd.        */
+
+#EventApp-app .EventApp-bookmarks-loading[hidden],
+#EventApp-app .EventApp-bookmarks-empty[hidden],
+#EventApp-app .EventApp-results[hidden] {
+    display: none !important;
+}
+
+#EventApp-app .EventApp-bookmarks-empty-icon img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    opacity: 0.2;
+}
+
+#EventApp-app .EventApp-bookmarks-empty-text {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+#EventApp-app .EventApp-bookmarks-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 24px;
+    background: var(--brand-primary);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+#EventApp-app .EventApp-bookmarks-cta:hover {
+    background: var(--brand-hover);
+}
+

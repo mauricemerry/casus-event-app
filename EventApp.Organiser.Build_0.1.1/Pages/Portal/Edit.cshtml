@@ -1,0 +1,392 @@
+﻿@page "{id:int}"
+@model EventApp.OrganiserPortal.Pages.Portal.EditModel
+
+@{
+    ViewData["Title"] = "Evenement bewerken";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/pages/create.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/map.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="" />
+}
+
+<div class="portal-shell">
+    <div class="portal-form-card">
+        <h1>Evenement bewerken</h1>
+        <p>Pas de gegevens aan of annuleer het evenement.</p>
+
+        <form method="post" class="portal-form">
+            <div asp-validation-summary="ModelOnly" class="portal-validation-summary"></div>
+
+            <div class="portal-form-grid">
+                <div class="portal-form-group">
+                    <label asp-for="Input.EventName">Evenement naam</label>
+                    <input asp-for="Input.EventName" />
+                    <span asp-validation-for="Input.EventName"></span>
+                </div>
+
+                <div class="portal-form-group">
+                    <label asp-for="Input.IndoorsOutdoors">@EventApp.OrganiserPortal.Models.IndoorsOutdoors.MESSAGES_NATURAL_LIST</label>
+                    <select asp-for="Input.IndoorsOutdoors">
+                        <option value="">Kies...</option>
+                        @foreach (var message in EventApp.OrganiserPortal.Models.IndoorsOutdoors.MESSAGES)
+                        {
+                        <option value=@message>@message</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.IndoorsOutdoors"></span>
+                </div>
+
+                <div class="portal-form-group portal-form-group--full">
+                    <label asp-for="Input.Description">Beschrijving</label>
+                    <textarea asp-for="Input.Description"></textarea>
+                    <span asp-validation-for="Input.Description"></span>
+                </div>
+
+                <div class="portal-form-group portal-form-group--full">
+                    <label asp-for="Input.Address">Adres</label>
+                    <div class="portal-address-row">
+                        <input asp-for="Input.Address"
+                               id="address-input"
+                               placeholder="Typ een adres of plaats een pin op de kaart" />
+                        <button type="button" id="resolve-address-btn" class="portal-secondary-link">Zoek adres</button>
+                    </div>
+                    <span asp-validation-for="Input.Address"></span>
+                </div>
+
+                <div class="portal-form-group portal-form-group--full">
+                    <label>Locatie kiezen</label>
+                    <div class="portal-map-picker">
+                        <div id="event-location-map" class="portal-map-canvas"></div>
+                    </div>
+                    <p class="portal-map-help">
+                        Plaats een pin op de kaart of typ een adres. De dichtstbijzijnde match wordt automatisch gekozen.
+                    </p>
+                    <div id="map-status" class="portal-map-status" aria-live="polite"></div>
+                    <span asp-validation-for="Input.Latitude"></span>
+                    <span asp-validation-for="Input.Longitude"></span>
+                </div>
+
+                <input asp-for="Input.Latitude" type="hidden" id="latitude-input" />
+                <input asp-for="Input.Longitude" type="hidden" id="longitude-input" />
+
+                <div class="portal-form-group portal-form-group--full">
+                    <label>Tickets</label>
+
+                    <div id="ticket-list" class="portal-ticket-list">
+                        @if (Model.Input.Tickets != null && Model.Input.Tickets.Count > 0)
+                        {
+                            for (var i = 0; i < Model.Input.Tickets.Count; i++)
+                            {
+                                <div class="portal-ticket-row">
+                                    <div class="portal-ticket-fields">
+                                        <div class="portal-form-group">
+                                            <label asp-for="Input.Tickets[i].TicketType">Ticketsoort</label>
+                                            <input asp-for="Input.Tickets[i].TicketType" />
+                                            <span asp-validation-for="Input.Tickets[i].TicketType"></span>
+                                        </div>
+
+                                        <div class="portal-form-group">
+                                            <label asp-for="Input.Tickets[i].Price">Prijs</label>
+                                            <input asp-for="Input.Tickets[i].Price" type="number" step="0.01" min="0" />
+                                            <span asp-validation-for="Input.Tickets[i].Price"></span>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="portal-remove-ticket-btn">Verwijderen</button>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="portal-ticket-row">
+                                <div class="portal-ticket-fields">
+                                    <div class="portal-form-group">
+                                        <label for="Input_Tickets_0__TicketType">Ticketsoort</label>
+                                        <input id="Input_Tickets_0__TicketType" name="Input.Tickets[0].TicketType" value="Gratis" />
+                                    </div>
+
+                                    <div class="portal-form-group">
+                                        <label for="Input_Tickets_0__Price">Prijs</label>
+                                        <input id="Input_Tickets_0__Price" name="Input.Tickets[0].Price" type="number" step="0.01" min="0" value="0" />
+                                    </div>
+                                </div>
+
+                                <button type="button" class="portal-remove-ticket-btn">Verwijderen</button>
+                            </div>
+                        }
+                    </div>
+
+                    <button type="button" id="add-ticket-btn" class="portal-secondary-link">Ticket toevoegen</button>
+                </div>
+
+                <div class="portal-form-group">
+                    <label asp-for="Input.HasStandingPlaces">Staanplaatsen aanwezig</label>
+                    <select asp-for="Input.HasStandingPlaces">
+                        <option value="">Kies...</option>
+                        <option value="true">Ja</option>
+                        <option value="false">Nee</option>
+                    </select>
+                    <span asp-validation-for="Input.HasStandingPlaces"></span>
+                </div>
+
+                <div class="portal-form-group">
+                    <label asp-for="Input.HasSittingPlaces">Zitplaatsen aanwezig</label>
+                    <select asp-for="Input.HasSittingPlaces">
+                        <option value="">Kies...</option>
+                        <option value="true">Ja</option>
+                        <option value="false">Nee</option>
+                    </select>
+                    <span asp-validation-for="Input.HasSittingPlaces"></span>
+                </div>
+
+                <div class="portal-form-group">
+                    <label asp-for="Input.DisabledParkingAvailable">Invalidenparkeerplaats aanwezig</label>
+                    <select asp-for="Input.DisabledParkingAvailable">
+                        <option value="">Kies...</option>
+                        <option value="true">Ja</option>
+                        <option value="false">Nee</option>
+                    </select>
+                    <span asp-validation-for="Input.DisabledParkingAvailable"></span>
+                </div>
+
+                <div class="portal-form-group">
+                    <label asp-for="Input.DisabledToiletAvailable">Invalidentoilet aanwezig</label>
+                    <select asp-for="Input.DisabledToiletAvailable">
+                        <option value="">Kies...</option>
+                        <option value="true">Ja</option>
+                        <option value="false">Nee</option>
+                    </select>
+                    <span asp-validation-for="Input.DisabledToiletAvailable"></span>
+                </div>
+
+                <div class="portal-form-group">
+                    <label asp-for="Input.WheelchairAccessibleToilet">Rolstoeltoegankelijk toilet</label>
+                    <select asp-for="Input.WheelchairAccessibleToilet">
+                        <option value="">Kies...</option>
+                        <option value="true">Ja</option>
+                        <option value="false">Nee</option>
+                    </select>
+                    <span asp-validation-for="Input.WheelchairAccessibleToilet"></span>
+                </div>
+
+                <div class="portal-form-group portal-form-group--full">
+                    <label for="categories-input">Categorieën</label>
+                    <div id="categories-tagbox" class="portal-tagbox"></div>
+                    <input id="categories-input"
+                           type="text"
+                           class="portal-tag-input"
+                           placeholder="Typ een categorie en druk op Enter"
+                           autocomplete="off" />
+                    <div id="categories-suggestions" class="portal-tag-suggestions"></div>
+                    <div id="categories-hidden-inputs">
+                        @if (Model.Input.Categories != null)
+                        {
+                            for (var i = 0; i < Model.Input.Categories.Count; i++)
+                            {
+                                <input type="hidden" name="Input.Categories[@i]" value="@Model.Input.Categories[i]" />
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="portal-form-group portal-form-group--full">
+                    <label for="accessibility-input">Toegankelijkheid</label>
+                    <div id="accessibility-tagbox" class="portal-tagbox"></div>
+                    <input id="accessibility-input"
+                           type="text"
+                           class="portal-tag-input"
+                           placeholder="Typ een toegankelijkheidsoptie en druk op Enter"
+                           autocomplete="off" />
+                    <div id="accessibility-suggestions" class="portal-tag-suggestions"></div>
+                    <div id="accessibility-hidden-inputs">
+                        @if (Model.Input.AccessibilityOptions != null)
+                        {
+                            for (var i = 0; i < Model.Input.AccessibilityOptions.Count; i++)
+                            {
+                                <input type="hidden" name="Input.AccessibilityOptions[@i]" value="@Model.Input.AccessibilityOptions[i]" />
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="portal-form-actions">
+                <a href="/Portal/Dashboard" class="portal-secondary-link">Terug</a>
+                <button type="submit" class="auth-submit-btn">Opslaan</button>
+            </div>
+        </form>
+
+        <form method="post" asp-page-handler="Cancel" class="portal-form" style="margin-top: 14px;">
+            <input type="hidden" asp-for="Id" />
+            <div class="portal-form-actions">
+                <button type="submit" class="portal-remove-ticket-btn">Evenement annuleren</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
+    <script src="~/js/create-event-map.js" asp-append-version="true"></script>
+
+    <script>
+        (() => {
+            const ticketList = document.getElementById('ticket-list');
+            const addTicketBtn = document.getElementById('add-ticket-btn');
+
+            function getTicketCount() {
+                return ticketList.querySelectorAll('.portal-ticket-row').length;
+            }
+
+            function createTicketRow(index) {
+                const row = document.createElement('div');
+                row.className = 'portal-ticket-row';
+
+                row.innerHTML = `
+                    <div class="portal-ticket-fields">
+                        <div class="portal-form-group">
+                            <label for="Input_Tickets_${index}__TicketType">Ticketsoort</label>
+                            <input id="Input_Tickets_${index}__TicketType" name="Input.Tickets[${index}].TicketType" />
+                        </div>
+
+                        <div class="portal-form-group">
+                            <label for="Input_Tickets_${index}__Price">Prijs</label>
+                            <input id="Input_Tickets_${index}__Price" name="Input.Tickets[${index}].Price" type="number" step="0.01" min="0" />
+                        </div>
+                    </div>
+
+                    <button type="button" class="portal-remove-ticket-btn">Verwijderen</button>
+                `;
+
+                return row;
+            }
+
+            function reindexTickets() {
+                const rows = ticketList.querySelectorAll('.portal-ticket-row');
+
+                rows.forEach((row, index) => {
+                    const typeLabel = row.querySelector('label[for^="Input_Tickets_"][for$="__TicketType"]');
+                    const typeInput = row.querySelector('input[name^="Input.Tickets["][name$="].TicketType"]');
+                    const priceLabel = row.querySelector('label[for^="Input_Tickets_"][for$="__Price"]');
+                    const priceInput = row.querySelector('input[name^="Input.Tickets["][name$="].Price"]');
+
+                    if (typeLabel) typeLabel.setAttribute('for', `Input_Tickets_${index}__TicketType`);
+                    if (typeInput) {
+                        typeInput.id = `Input_Tickets_${index}__TicketType`;
+                        typeInput.name = `Input.Tickets[${index}].TicketType`;
+                    }
+
+                    if (priceLabel) priceLabel.setAttribute('for', `Input_Tickets_${index}__Price`);
+                    if (priceInput) {
+                        priceInput.id = `Input_Tickets_${index}__Price`;
+                        priceInput.name = `Input.Tickets[${index}].Price`;
+                    }
+                });
+            }
+
+            if (addTicketBtn && ticketList) {
+                addTicketBtn.addEventListener('click', () => {
+                    const index = getTicketCount();
+                    ticketList.appendChild(createTicketRow(index));
+                });
+
+                ticketList.addEventListener('click', (event) => {
+                    const removeBtn = event.target.closest('.portal-remove-ticket-btn');
+                    if (!removeBtn) return;
+
+                    const row = removeBtn.closest('.portal-ticket-row');
+                    if (!row) return;
+
+                    row.remove();
+                    reindexTickets();
+                });
+            }
+        })();
+
+        (() => {
+            function setupTagInput(config) {
+                const input = document.getElementById(config.inputId);
+                const tagbox = document.getElementById(config.tagboxId);
+                const hiddenInputs = document.getElementById(config.hiddenInputsId);
+
+                if (!input || !tagbox || !hiddenInputs) return;
+
+                const values = Array.from(hiddenInputs.querySelectorAll('input[type="hidden"]'))
+                    .map(x => x.value)
+                    .filter(x => x && x.trim() !== '');
+
+                function render() {
+                    tagbox.innerHTML = '';
+                    hiddenInputs.innerHTML = '';
+
+                    values.forEach((value, index) => {
+                        const tag = document.createElement('button');
+                        tag.type = 'button';
+                        tag.className = 'portal-tag';
+                        tag.innerHTML = `<span>${value}</span><span aria-hidden="true">×</span>`;
+                        tag.addEventListener('click', () => {
+                            values.splice(index, 1);
+                            render();
+                        });
+
+                        tagbox.appendChild(tag);
+
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = `${config.name}[${index}]`;
+                        hidden.value = value;
+                        hiddenInputs.appendChild(hidden);
+                    });
+                }
+
+                function addValue(rawValue) {
+                    const value = rawValue.trim();
+                    if (!value) return;
+                    if (values.some(x => x.toLowerCase() === value.toLowerCase())) return;
+
+                    values.push(value);
+                    input.value = '';
+                    render();
+                }
+
+                input.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ',') {
+                        event.preventDefault();
+                        addValue(input.value);
+                    }
+                });
+
+                input.addEventListener('blur', () => {
+                    if (input.value.trim() !== '') {
+                        addValue(input.value);
+                    }
+                });
+
+                render();
+            }
+
+            setupTagInput({
+                inputId: 'categories-input',
+                tagboxId: 'categories-tagbox',
+                hiddenInputsId: 'categories-hidden-inputs',
+                name: 'Input.Categories'
+            });
+
+            setupTagInput({
+                inputId: 'accessibility-input',
+                tagboxId: 'accessibility-tagbox',
+                hiddenInputsId: 'accessibility-hidden-inputs',
+                name: 'Input.AccessibilityOptions'
+            });
+        })();
+    </script>
+}

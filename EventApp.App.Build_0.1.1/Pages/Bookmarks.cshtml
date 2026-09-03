@@ -1,0 +1,66 @@
+@page
+@model EventApp.Web.Pages.BookmarksModel
+
+@section Head {
+    <link rel="stylesheet" href="~/css/pages/bookmarks.css" asp-append-version="true" />
+}
+
+@{
+    ViewData["Title"] = "Mijn bookmarks";
+}
+
+<div id="EventApp-app">
+    <header class="EventApp-topbar">
+        <div class="EventApp-topbar-left">
+            <img class="EventApp-topbar-brand-image"
+                 src="/images/branding/img_EventApplogo.png"
+                 alt="EventApp" />
+        </div>
+
+        @* Lege spacer zodat de topbar-grid zijn midden-kolom behoudt *@
+        <div class="EventApp-topbar-search"></div>
+
+        <nav class="EventApp-topbar-nav" aria-label="Hoofdnavigatie">
+            <a class="EventApp-topbar-link" href="/">Home</a>
+            <button type="button" class="EventApp-topbar-link" id="btn-nav-map-top">Map</button>
+            <button type="button" class="EventApp-topbar-link" id="btn-nav-social-top">Social</button>
+            <a class="EventApp-topbar-link is-active" href="/bookmarks" id="btn-nav-bookmarks-top" aria-label="Mijn opgeslagen evenementen">
+                Opgeslagen
+            </a>
+            <button type="button" class="EventApp-profile-pill" id="btn-nav-profile-top" aria-label="Profiel">
+                <img class="EventApp-profile-pill-image" src="/images/icons/img_profileplaceholder.png" alt="Profiel" hidden />
+            </button>
+        </nav>
+    </header>
+
+    <div class="EventApp-page EventApp-page--no-sidebar">
+        <main class="EventApp-main">
+            <div class="EventApp-bookmarks-header">
+                <h1 class="EventApp-bookmarks-title">Mijn opgeslagen evenementen</h1>
+                <a href="/" class="EventApp-bookmarks-back">&#8592; Terug naar overzicht</a>
+            </div>
+
+            @* Laadstatus: zichtbaar totdat de JS de events heeft opgehaald *@
+            <div id="EventApp-bookmarks-loading" class="EventApp-bookmarks-loading" aria-live="polite">
+                <span>Evenementen laden...</span>
+            </div>
+
+            @* Lege toestand: zichtbaar als er geen bookmarks zijn *@
+            <div id="EventApp-bookmarks-empty" class="EventApp-bookmarks-empty" hidden>
+                <div class="EventApp-bookmarks-empty-icon" aria-hidden="true">
+                    <img src="/images/icons/img_notbookmarked.png" alt="" />
+                </div>
+                <p class="EventApp-bookmarks-empty-text">Je hebt nog geen evenementen opgeslagen.</p>
+                <a href="/" class="EventApp-bookmarks-cta">Bekijk alle evenementen</a>
+            </div>
+
+            @* Resultatenlijst: gevuld door JavaScript *@
+            <div id="EventApp-bookmarks-results" class="EventApp-results" hidden></div>
+        </main>
+    </div>
+</div>
+
+@section Scripts {
+    @* bookmarks.js is al globaal geladen via _Layout.cshtml *@
+    <script src="~/js/pages/bookmarks-page.js" asp-append-version="true"></script>
+}

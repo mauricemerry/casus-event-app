@@ -1,0 +1,234 @@
+﻿.EventApp-event-page {
+    min-height: 100vh;
+    padding: 32px 24px 64px;
+}
+
+.EventApp-event-shell {
+    width: min(920px, 100%);
+    margin: 0 auto;
+}
+
+.EventApp-event-detail-wrap {
+    position: relative;
+    padding-left: 72px;
+}
+
+.EventApp-event-back-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(38, 50, 77, 0.95);
+    border-radius: 16px;
+    background: rgba(18, 25, 43, 0.92);
+    color: #F5F7FB;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+    z-index: 2;
+}
+
+    .EventApp-event-back-btn:hover {
+        background: #18233A;
+        border-color: rgba(124, 92, 255, 0.6);
+        transform: translateY(-1px);
+    }
+
+.EventApp-event-detail-card,
+.EventApp-event-not-found {
+    background: linear-gradient(180deg, rgba(18, 25, 43, 0.96), rgba(11, 16, 32, 0.96));
+    border: 1px solid rgba(38, 50, 77, 0.95);
+    border-radius: 28px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.EventApp-event-detail-media {
+    width: 100%;
+    border-bottom: 1px solid rgba(38, 50, 77, 0.95);
+    background: #18233A;
+}
+
+.EventApp-event-detail-image {
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    display: block;
+}
+
+.EventApp-event-detail-body {
+    padding: 28px 28px 24px;
+}
+
+.EventApp-event-detail-title {
+    margin: 0 0 20px;
+    color: #F5F7FB;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+}
+
+.EventApp-event-detail-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.EventApp-event-detail-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    background: rgba(24, 35, 58, 0.88);
+    border: 1px solid rgba(38, 50, 77, 0.95);
+    border-radius: 18px;
+}
+
+.EventApp-event-detail-meta-label {
+    color: #AAB4C8;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.EventApp-event-detail-meta-value {
+    color: #F5F7FB;
+    font-size: 1rem;
+    line-height: 1.45;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.EventApp-event-detail-description-block {
+    margin-bottom: 26px;
+    padding: 20px;
+    background: rgba(24, 35, 58, 0.62);
+    border: 1px solid rgba(38, 50, 77, 0.95);
+    border-radius: 20px;
+}
+
+.EventApp-event-detail-section-title {
+    margin: 0 0 12px;
+    color: #F5F7FB;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.EventApp-event-detail-description {
+    margin: 0;
+    color: #AAB4C8;
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
+.EventApp-event-detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.EventApp-order-btn {
+    min-width: 160px;
+    height: 50px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #9278FF 0%, #7C5CFF 100%);
+    color: #F5F7FB;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(124, 92, 255, 0.28);
+    transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+}
+
+    .EventApp-order-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.04);
+        box-shadow: 0 14px 28px rgba(124, 92, 255, 0.34);
+    }
+
+.EventApp-back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 50px;
+    padding: 0 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(38, 50, 77, 0.95);
+    background: rgba(18, 25, 43, 0.78);
+    color: #F5F7FB;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+    .EventApp-back-link:hover {
+        background: #18233A;
+        border-color: rgba(124, 92, 255, 0.6);
+        transform: translateY(-1px);
+    }
+
+.EventApp-event-not-found {
+    padding: 32px;
+}
+
+    .EventApp-event-not-found h1 {
+        margin: 0 0 12px;
+        color: #F5F7FB;
+    }
+
+    .EventApp-event-not-found p {
+        margin: 0;
+        color: #AAB4C8;
+    }
+
+@media (max-width: 720px) {
+    .EventApp-event-detail-wrap {
+        padding-left: 0px;
+        padding-top: 64px;
+    }
+
+    .EventApp-event-back-btn {
+        top: 0;
+        left: 0;
+    }
+
+    .EventApp-event-page {
+        padding: 20px 12px 40px;
+    }
+
+    .EventApp-event-detail-image {
+        height: 260px;
+    }
+
+    .EventApp-event-detail-body {
+        padding: 20px;
+    }
+
+    .EventApp-event-detail-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .EventApp-event-detail-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .EventApp-order-btn,
+    .EventApp-back-link {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -1,0 +1,298 @@
+﻿.portal-shell {
+    width: min(calc(100% - 32px), var(--misc-shell-width));
+    margin: 18px auto 0;
+    padding: 0 0 40px;
+    color: var(--text-primary);
+}
+
+.portal-form-card {
+    background: linear-gradient(180deg, rgba(18, 25, 43, 0.96), rgba(11, 16, 32, 0.96));
+    border: 1px solid rgba(38, 50, 77, 0.95);
+    border-radius: 28px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 28px;
+    overflow: hidden;
+}
+
+    .portal-form-card h1 {
+        margin: 0 0 8px;
+        color: var(--text-primary);
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        font-weight: 800;
+    }
+
+    .portal-form-card > p {
+        margin: 0 0 24px;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+.portal-form {
+    width: 100%;
+}
+
+.portal-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.portal-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.portal-form-group--full {
+    grid-column: 1 / -1;
+}
+
+.portal-form-group label {
+    color: var(--text-primary);
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.portal-form-group input,
+.portal-form-group select,
+.portal-form-group textarea,
+.portal-tag-input {
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 16px;
+    border: 1px solid rgba(38, 50, 77, 0.95);
+    border-radius: 18px;
+    background: rgba(24, 35, 58, 0.88);
+    color: var(--text-primary);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease, transform 0.16s ease;
+}
+
+.portal-form-group textarea {
+    min-height: 140px;
+    resize: vertical;
+    line-height: 1.65;
+}
+
+    .portal-form-group input::placeholder,
+    .portal-form-group textarea::placeholder,
+    .portal-tag-input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.8;
+    }
+
+    .portal-form-group input:focus,
+    .portal-form-group select:focus,
+    .portal-form-group textarea:focus,
+    .portal-tag-input:focus {
+        outline: none;
+        border-color: rgba(124, 92, 255, 0.7);
+        box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.14);
+        background: rgba(24, 35, 58, 0.98);
+    }
+
+.portal-form-group select {
+    appearance: none;
+}
+
+.portal-form-group input[type="file"] {
+    padding: 12px 14px;
+    background: rgba(24, 35, 58, 0.78);
+    cursor: pointer;
+}
+
+.portal-address-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.portal-validation-summary,
+.validation-summary-errors {
+    margin: 0 0 22px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.34);
+    color: #ffd7d7;
+}
+
+    .portal-validation-summary ul,
+    .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+.portal-form-group span.field-validation-error,
+.portal-form-group .field-validation-error,
+.portal-form-group span[asp-validation-for] {
+    color: #ff9b9b;
+    font-size: 0.88rem;
+}
+
+.input-validation-error,
+select.input-validation-error,
+textarea.input-validation-error {
+    border-color: rgba(239, 68, 68, 0.75) !important;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
+}
+
+.portal-ticket-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.portal-ticket-row {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(24, 35, 58, 0.62);
+    border: 1px solid rgba(38, 50, 77, 0.95);
+}
+
+.portal-ticket-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.portal-tagbox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 10px;
+}
+
+.portal-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(124, 92, 255, 0.42);
+    border-radius: 999px;
+    background: rgba(124, 92, 255, 0.16);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+    .portal-tag:hover {
+        background: rgba(124, 92, 255, 0.24);
+        border-color: rgba(124, 92, 255, 0.62);
+        transform: translateY(-1px);
+    }
+
+.portal-tag-suggestions {
+    min-height: 2px;
+}
+
+.portal-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+}
+
+.portal-secondary-link,
+.auth-submit-btn,
+.portal-remove-ticket-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0 18px;
+    border-radius: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+}
+
+.portal-secondary-link {
+    border: 1px solid rgba(38, 50, 77, 0.95);
+    background: rgba(18, 25, 43, 0.78);
+    color: var(--text-primary);
+}
+
+    .portal-secondary-link:hover {
+        background: #18233A;
+        border-color: rgba(124, 92, 255, 0.6);
+        transform: translateY(-1px);
+    }
+
+.auth-submit-btn {
+    border: 1px solid transparent;
+    background: linear-gradient(180deg, #9278FF 0%, #7C5CFF 100%);
+    color: #F5F7FB;
+    box-shadow: 0 10px 24px rgba(124, 92, 255, 0.28);
+}
+
+    .auth-submit-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.04);
+        box-shadow: 0 14px 28px rgba(124, 92, 255, 0.34);
+    }
+
+.portal-remove-ticket-btn {
+    align-self: flex-start;
+    border: 1px solid rgba(255, 79, 163, 0.32);
+    background: rgba(255, 79, 163, 0.12);
+    color: #ffd3e8;
+}
+
+    .portal-remove-ticket-btn:hover {
+        background: rgba(255, 79, 163, 0.18);
+        border-color: rgba(255, 79, 163, 0.52);
+        transform: translateY(-1px);
+    }
+
+@media (max-width: 900px) {
+    .portal-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .portal-ticket-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .portal-address-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .portal-shell {
+        width: min(calc(100% - 24px), var(--misc-shell-width));
+        margin-top: 12px;
+        padding-bottom: 28px;
+    }
+
+    .portal-form-card {
+        padding: 20px;
+        border-radius: 24px;
+    }
+
+    .portal-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .portal-secondary-link,
+    .auth-submit-btn {
+        width: 100%;
+    }
+}

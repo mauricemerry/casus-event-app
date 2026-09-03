@@ -1,0 +1,89 @@
+﻿@page
+@model EventApp.OrganiserPortal.Pages.DashboardModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/pages/dashboard.css" asp-append-version="true" />
+}
+
+<div class="dashboard-shell">
+    <div class="dashboard-card">
+        <div class="dashboard-header-row">
+            <div>
+                <h1>Huidige evenementen</h1>
+                <p>Welkom, @User.Identity?.Name</p>
+            </div>
+
+            <a href="/Portal/Create" class="dashboard-add-btn">Evenement toevoegen</a>
+        </div>
+
+        @if (Model.Events.Count == 0)
+        {
+            <div class="dashboard-empty-state">
+                Je hebt nog geen evenementen.
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-event-list">
+                @foreach (var item in Model.Events)
+                {
+                    <article class="dashboard-event-item">
+                        <a class="dashboard-event-edit-btn"
+                               href="/Portal/Edit/@item.EventId"
+                               aria-label="Evenement bewerken">
+                            ✎
+                        </a>
+
+                        <div class="dashboard-event-item-media">
+                            <img src="@(string.IsNullOrWhiteSpace(item.ImageUrl) ? "/uploads/events/placeholder.jpg" : item.ImageUrl)"
+                                 alt="@item.EventName" />
+                        </div>
+
+                        <div class="dashboard-event-item-body">
+                            <div class="dashboard-event-title-row">
+                                <h2>@item.EventName</h2>
+
+                                @if (item.IsCanceled)
+                                {
+                                    <span class="dashboard-event-status dashboard-event-status--canceled">Geannuleerd</span>
+                                }
+                            </div>
+
+                            <div class="dashboard-event-meta-grid">
+                                <div class="dashboard-event-meta-item">
+                                    <span class="dashboard-event-meta-label">Binnen / Buiten</span>
+                                    <span class="dashboard-event-meta-value">@item.IndoorsOutdoors</span>
+                                </div>
+
+                                <div class="dashboard-event-meta-item">
+                                    <span class="dashboard-event-meta-label">Prijs</span>
+                                    <span class="dashboard-event-meta-value">
+                                        @(item.MinPrice.HasValue ? $"€{item.MinPrice.Value:0.##}+" : "Geen prijs")
+                                    </span>
+                                </div>
+
+                                <div class="dashboard-event-meta-item">
+                                    <span class="dashboard-event-meta-label">Categorieën</span>
+                                    <span class="dashboard-event-meta-value">
+                                        @(string.IsNullOrWhiteSpace(item.CategoriesText) ? "Geen categorieën" : item.CategoriesText)
+                                    </span>
+                                </div>
+
+                                <div class="dashboard-event-meta-item">
+                                    <span class="dashboard-event-meta-label">Toegankelijkheid</span>
+                                    <span class="dashboard-event-meta-value">
+                                        @(string.IsNullOrWhiteSpace(item.AccessibilityText) ? "Geen toegankelijkheidsopties" : item.AccessibilityText)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</div>

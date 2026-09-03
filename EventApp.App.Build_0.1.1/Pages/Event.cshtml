@@ -1,0 +1,98 @@
+﻿@page "/event/{id:int}"
+@model EventApp.Web.Pages.EventModel
+
+@section Head {
+    <link rel="stylesheet" href="~/css/pages/event.css" asp-append-version="true" />
+}
+
+@{
+    ViewData["Title"] = Model.EventCard?.EventName ?? "Event";
+}
+
+@if (Model.EventCard == null)
+{
+    <div class="EventApp-event-page">
+        <div class="EventApp-event-shell">
+            <div class="EventApp-event-not-found">
+                <h1>Event niet gevonden</h1>
+                <p>Het opgevraagde event bestaat niet.</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    var imageUrl = string.IsNullOrWhiteSpace(Model.EventCard.ImageUrl)
+        ? "/images/events/placeholder.jpg"
+        : Model.EventCard.ImageUrl;
+
+    var description = string.IsNullOrWhiteSpace(Model.EventCard.Description)
+        ? "Geen beschrijving beschikbaar."
+        : Model.EventCard.Description;
+
+    var priceText = Model.EventCard.MinPrice == 0
+        ? "Gratis"
+        : $"€{Model.EventCard.MinPrice:0.##}+";
+
+    var categoriesText = Model.EventCard.Categories != null && Model.EventCard.Categories.Count > 0
+        ? string.Join(", ", Model.EventCard.Categories)
+        : "Geen categorieën";
+
+    <div class="EventApp-event-page">
+        <div class="EventApp-event-shell">
+            <div class="EventApp-event-detail-wrap">
+                <a href="/" class="EventApp-event-back-btn">←</a>
+
+                <article class="EventApp-event-detail-card">
+                    <div class="EventApp-event-detail-media">
+                        <img src="@imageUrl"
+                             alt="@Model.EventCard.EventName"
+                             class="EventApp-event-detail-image" />
+                    </div>
+
+                    <div class="EventApp-event-detail-body">
+                        <h1 class="EventApp-event-detail-title">@Model.EventCard.EventName</h1>
+
+                        <div class="EventApp-event-detail-meta">
+                            <div class="EventApp-event-detail-meta-item">
+                                <span class="EventApp-event-detail-meta-label">Prijs</span>
+                                <span class="EventApp-event-detail-meta-value">@priceText</span>
+                            </div>
+
+                            <div class="EventApp-event-detail-meta-item">
+                                <span class="EventApp-event-detail-meta-label">Rating</span>
+                                <span class="EventApp-event-detail-meta-value">@Model.EventCard.RatingText</span>
+                            </div>
+
+                            <div class="EventApp-event-detail-meta-item">
+                                <span class="EventApp-event-detail-meta-label">Categorieën</span>
+                                <span class="EventApp-event-detail-meta-value">@categoriesText</span>
+                            </div>
+
+                            <div class="EventApp-event-detail-meta-item">
+                                <span class="EventApp-event-detail-meta-label">Toegankelijkheid</span>
+                                <span class="EventApp-event-detail-meta-value">@Model.EventCard.AccessibilityText</span>
+                            </div>
+
+                            <div class="EventApp-event-detail-meta-item">
+                                <span class="EventApp-event-detail-meta-label">18+</span>
+                                <span class="EventApp-event-detail-meta-value">
+                                    @(Model.EventCard.IsAdultsOnly ? "Ja" : "Nee")
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="EventApp-event-detail-description-block">
+                            <h2 class="EventApp-event-detail-section-title">Beschrijving</h2>
+                            <p class="EventApp-event-detail-description">@description</p>
+                        </div>
+
+                        <div class="EventApp-event-detail-actions">
+                            <button type="button" class="EventApp-order-btn">Bestel tickets</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+}

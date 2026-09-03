@@ -1,0 +1,95 @@
+﻿#EventApp-app .EventApp-topbar {
+    position: sticky;
+    top: 16px;
+    z-index: 1200;
+    width: min(calc(100% - 32px), var(--misc-shell-width));
+    margin: 0 auto;
+    min-height: 84px;
+    padding: 12px 20px;
+    display: grid;
+    grid-template-columns: auto minmax(280px, 1fr) auto;
+    align-items: center;
+    gap: 18px;
+    background: rgba(12, 18, 34, 0.58);
+    border: 1px solid rgba(245, 247, 251, 0.09);
+    border-radius: 22px;
+    box-shadow: var(--misc-shadow);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+}
+
+#EventApp-app .EventApp-topbar-left {
+    min-width: fit-content;
+    display: flex;
+    align-items: center;
+}
+
+#EventApp-app .EventApp-topbar-brand-image {
+    display: block;
+    height: 44px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+}
+
+#EventApp-app .EventApp-topbar-search {
+    min-width: 0;
+}
+
+#EventApp-app .EventApp-topbar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+#EventApp-app .EventApp-topbar-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(245, 247, 251, 0.08);
+    background: rgba(16, 23, 41, 0.56);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+    #EventApp-app .EventApp-topbar-link.is-active {
+        color: var(--text-primary);
+        border-color: rgba(146, 120, 255, 0.55);
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.28), rgba(146, 120, 255, 0.16));
+    }
+
+#EventApp-app .EventApp-profile-pill {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 9999px;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.EventApp-profile-pill-fallback,
+.EventApp-profile-pill-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: fit;
+}
+
+.EventApp-profile-pill-image {
+    display: block;
+    object-fit: cover;
+}

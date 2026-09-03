@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#f3f4f6"/>
+  <path d="M 50 250 L 150 150 L 250 200 L 350 100" stroke="#9ca3af" stroke-width="4" fill="none"/>
+  <circle cx="300" cy="80" r="30" fill="#fbbf24"/>
+  <text x="200" y="160" font-family="Arial, sans-serif" font-size="20" fill="#6b7280" text-anchor="middle">Event Image</text>
+</svg>

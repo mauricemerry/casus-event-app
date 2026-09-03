@@ -1,0 +1,210 @@
+﻿#EventApp-app .EventApp-results {
+    display: grid;
+    gap: 22px;
+}
+
+#EventApp-app .EventApp-event-row,
+#EventApp-app .EventApp-card {
+    width: 100%;
+}
+
+#EventApp-app .EventApp-card {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    min-height: 286px;
+    height: 286px;
+    background: var(--misc-panel-strong);
+    border: 1px solid var(--misc-border);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: var(--misc-shadow);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+#EventApp-app .EventApp-card-media {
+    position: relative;
+    min-height: 286px;
+    height: 286px;
+    overflow: hidden;
+    background: var(--surface);
+}
+
+    #EventApp-app .EventApp-card-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+#EventApp-app .EventApp-category-badges {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+#EventApp-app .EventApp-category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(11, 16, 32, 0.78);
+    border: 1px solid rgba(245, 247, 251, 0.12);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    line-height: 1;
+    backdrop-filter: blur(8px);
+    max-width: 100%;
+    cursor: pointer;
+}
+
+#EventApp-app .EventApp-category-icon {
+    font-size: 0.9rem;
+    flex: 0 0 auto;
+}
+
+#EventApp-app .EventApp-category-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#EventApp-app .EventApp-card-content {
+    min-width: 0;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+}
+
+#EventApp-app .EventApp-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+    #EventApp-app .EventApp-card-head h2 {
+        margin: 0;
+        font-size: 1.45rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+
+#EventApp-app .EventApp-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#EventApp-app .EventApp-price {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+#EventApp-app .EventApp-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+}
+
+#EventApp-app .EventApp-rating-inline-icon {
+    width: 12px;
+    height: 18px;
+    object-fit: contain;
+}
+
+#EventApp-app .EventApp-description-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    align-self: start;
+}
+
+#EventApp-app .EventApp-description-text {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    font-size: 0.95rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    text-overflow: ellipsis;
+    max-height: calc(3 * 1.45em);
+    word-break: break-word;
+    text-align: justify;
+}
+
+#EventApp-app .EventApp-read-more-link {
+    display: inline-block;
+    width: fit-content;
+    color: var(--brand-hover);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+#EventApp-app .EventApp-read-more-link:hover {
+    color: var(--text-primary);
+}
+
+#EventApp-app .EventApp-bottom-row {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    padding-bottom: 2px
+}
+
+#EventApp-app .EventApp-extra-meta {
+    min-width: 0;
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    line-height: 38px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    justify-self: start;
+}
+
+#EventApp-app .EventApp-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+#EventApp-app .EventApp-order-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 88px;
+    height: 38px;
+    border-radius: 24px;
+    border: 1px solid var(--brand-primary);
+    background: var(--brand-primary);
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+#EventApp-app .EventApp-order-btn:hover {
+    background: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+}
