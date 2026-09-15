@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="EventApp.App.Build_0.1.1/EventApp.App.Build_0.1.1.csproj" />
   <Project Path="EventApp.Organiser.Build_0.1.1/EventApp.Organiser.Build_0.1.1.csproj" />
+  <Project Path="EventAppTest/EventAppTest.csproj" Id="dbff5719-07b7-437b-9d1d-991cdb2f7904" />
   <Project Path="PasswordGenerator/PasswordGenerator.csproj" Id="87e88b18-ddef-4024-b2de-252f440a2386" />
 </Solution>
