@@ -8,13 +8,16 @@ namespace EventApp.App.Build_0._1._1.Test
         /// Author: Maurice Merry
         /// Test that GetCategoryIcon returns the correct icon for known categories.
         /// </summary>
-        [Test]
-        public void TestEventCard_GetCategoryIcon_CorrectIconForKnownValue()
+        // arrange
+        [TestCase("house", "♪")]
+        [TestCase("kunst", "✎")]
+        [TestCase("historie", "⌛")]
+        [TestCase("film", "◉")]
+        [TestCase("toneel", "◌")]
+        [TestCase("dans", "♬")]
+        [TestCase("drank", "☕")]
+        public void TestEventCard_GetCategoryIcon_CorrectIconForKnownValue(string category, string expectedIcon)
         {
-            // arrange
-            string category = "house";
-            string expectedIcon = "♪";
-
             // act
             string receivedIcon = EventCard.GetCategoryIcon(category);
 
@@ -26,13 +29,11 @@ namespace EventApp.App.Build_0._1._1.Test
         /// Author: Maurice Merry
         /// Test that GetCategoryIcon returns the default icon for unknown categories.
         /// </summary>
-        [Test]
-        public void TestEventCard_GetCategoryIcon_DefaultIconForUnknownValue()
+        // arrange
+        [TestCase("thisisnotavalideventcategoryitisjustalongstringimadeup", "•")]
+        [TestCase("", "•")]
+        public void TestEventCard_GetCategoryIcon_DefaultIconForUnknownValue(string category, string expectedIcon)
         {
-            // arrange
-            string category = "thisisnotavalideventcategoryitisjustalongstringimadeup";
-            string expectedIcon = "•";
-
             // act
             string receivedIcon = EventCard.GetCategoryIcon(category);
 
