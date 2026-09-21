@@ -1,47 +1,39 @@
 ﻿using EventApp.OrganiserPortal.Models;
 using EventApp.OrganiserPortal.Repositories;
+using Microsoft.AspNetCore.Diagnostics;
 using Moq;
 
 namespace EventApp.Organiser.Build_0._1._1.Test
 {
     [TestFixture]
     public class InOutDoorsTests
-    {
-        [Test]
-        public void GetMessage_WithValue1_ReturnsBinnen()
+    {   
+        //jesse
+        //Arrange
+        [TestCase(1, "Binnen")]
+        [TestCase(2, "Buiten")]
+        [TestCase(3, "Beide")]
+        [TestCase(-1, "why not?")]
+        public void GetMessage_WithValidValue_ReturnsCorrectMessage(int value, string expected)
         {
-            // Arrange
-            int value = 1;
-
             // Act
             var result = IndoorsOutdoors.GetMessage(value);
 
             // Assert
-            Assert.That(result, Is.EqualTo("Binnen"));
+            Assert.That(result, Is.EqualTo(expected));
         }
-        [Test]
-        public void GetMessage_WithValue1_Returnsbijde()
+        //jesse
+        //Assert
+        [TestCase("Binnen", 1)]
+        [TestCase("Buiten", 2)]
+        [TestCase("Beide", 3)]
+        [TestCase("", -1)]
+        public void GetValue_WithValidMessage_ReturnsCorrectValue(string message, int expected)
         {
-            // Arrange
-            int value = 3;
-
             // Act
-            var result = IndoorsOutdoors.GetMessage(value);
-
+            var result = IndoorsOutdoors.GetValue(message);
             // Assert
-            Assert.That(result, Is.EqualTo("Beide"));
-        }
-        [Test]
-        public void GetMessage_WithValue1_ReturnsBuiten()
-        {
-            // Arrange
-            int value = 2;
-
-            // Act
-            var result = IndoorsOutdoors.GetMessage(value);
-
-            // Assert
-            Assert.That(result, Is.EqualTo("Buiten"));
+            Assert.That(result, Is.EqualTo(expected));
         }
     }
 }
