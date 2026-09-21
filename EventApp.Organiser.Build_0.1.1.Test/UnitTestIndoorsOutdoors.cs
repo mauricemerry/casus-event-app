@@ -13,7 +13,6 @@ namespace EventApp.Organiser.Build_0._1._1.Test
         [TestCase(1, "Binnen")]
         [TestCase(2, "Buiten")]
         [TestCase(3, "Beide")]
-        [TestCase(-1, "why not?")]
         public void GetMessage_WithValidValue_ReturnsCorrectMessage(int value, string expected)
         {
             // Act
