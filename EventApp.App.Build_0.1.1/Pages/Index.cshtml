@@ -169,7 +169,7 @@
                                         @foreach (var category in eventCard.Categories)
                                         {
                                         <span class="EventApp-category-badge" title="${escapeHtml(category)}">
-                                            <span class="EventApp-category-icon" aria-hidden="true">EventCard.GetCategoryIcon(category)</span>
+                                            <span class="EventApp-category-icon" aria-hidden="true">@eventCard.GetCategoryIcon(category)</span>
                                             <span class="EventApp-category-label">@category</span>
                                         </span>
                                         }

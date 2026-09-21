@@ -18,8 +18,11 @@ namespace EventApp.App.Build_0._1._1.Test
         [TestCase("drank", "☕")]
         public void TestEventCard_GetCategoryIcon_CorrectIconForKnownValue(string category, string expectedIcon)
         {
+            // arrange
+            EventCard eventCard = new();
+
             // act
-            string receivedIcon = EventCard.GetCategoryIcon(category);
+            string receivedIcon = eventCard.GetCategoryIcon(category);
 
             // assert
             Assert.That(receivedIcon, Is.EqualTo(expectedIcon));
@@ -34,8 +37,11 @@ namespace EventApp.App.Build_0._1._1.Test
         [TestCase("", "•")]
         public void TestEventCard_GetCategoryIcon_DefaultIconForUnknownValue(string category, string expectedIcon)
         {
+            // arrange
+            EventCard eventCard = new();
+
             // act
-            string receivedIcon = EventCard.GetCategoryIcon(category);
+            string receivedIcon = eventCard.GetCategoryIcon(category);
 
             // assert
             Assert.That(receivedIcon, Is.EqualTo(expectedIcon));

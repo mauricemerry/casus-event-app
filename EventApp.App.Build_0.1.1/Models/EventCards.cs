@@ -16,7 +16,7 @@ namespace EventApp.Web.Models
         public List<string> Categories { get; set; } = [];
         public string AccessibilityText { get; set; } = string.Empty;
 
-        public static string GetCategoryIcon(String category)
+        public string GetCategoryIcon(String category)
         {
             if (
                 category.Contains("house", StringComparison.OrdinalIgnoreCase) ||
