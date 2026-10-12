@@ -16,13 +16,23 @@
 
 <div class="portal-shell">
     <div class="portal-form-card">
+        
         <h1>Evenement aanmaken</h1>
         <p>Vul alle verplichte velden in.</p>
+
+        <nav class="event-steps" aria-label="Evenement stappen">
+            <button type="button" class="active" data-step="1">1. Basis</button>
+            <button type="button" data-step="2">2. Datum &amp; tijd</button>
+            <button type="button" data-step="3">3. Details</button>
+            <button type="button" data-step="4">4. Extra info</button>
+            <button type="button" data-step="5">5. Publiceren</button>
+        </nav>
+
 
         <form method="post" enctype="multipart/form-data" class="portal-form">
             <div asp-validation-summary="ModelOnly" class="portal-validation-summary"></div>
 
-            <div class="portal-form-grid">
+            <div class="portal-form-grid" id="event-form-fields">
                 <div class="portal-form-group">
                     <label asp-for="Input.EventName">Evenement naam</label>
                     <input asp-for="Input.EventName" />
@@ -257,6 +267,19 @@
                     </div>
                 </div>
             </div>
+            
+            <section id="event-summary" hidden>
+                <h2>Controleer je evenement</h2>
+
+                <p>
+                    <strong>Evenementnaam:</strong>
+                    <span id="summary-name">Nog niet ingevuld</span>
+                </p>
+
+                <p>
+                    gimme sum time too fix fucker, im learning.
+                </p>
+            </section>
 
             <div class="portal-form-actions">
                 <a href="/Portal/Dashboard" class="portal-secondary-link">Annuleren</a>
@@ -426,5 +449,36 @@
                 name: 'Input.AccessibilityOptions'
             });
         })();
+
+       
+        document.addEventListener("DOMContentLoaded", function () {
+            const buttons = document.querySelectorAll(".event-steps button");
+            const formFields = document.getElementById("event-form-fields");
+            const summary = document.getElementById("event-summary");
+
+            buttons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const step = Number(button.dataset.step);
+
+                    buttons.forEach(function (otherButton) {
+                        otherButton.classList.remove("active");
+                    });
+
+                    button.classList.add("active");
+
+                    // Stap 5 toont de samenvatting.
+                    const showSummary = step === 5;
+
+                    formFields.hidden = showSummary;
+                    summary.hidden = !showSummary;
+                    if (showSummary) { 
+                        const nameInput = document.querySelector('Input[name="Input.EventName"]');
+                        document.getElementById("summary-name").TextContent = nameInput?.value ||"Nog niet ingevuld";
+                    }
+                });
+            });
+        });
+
+
     </script>
 }
