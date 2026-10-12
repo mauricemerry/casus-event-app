@@ -296,3 +296,45 @@ textarea.input-validation-error {
         width: 100%;
     }
 }
+
+/* Navigatie tussen de stappen */
+.event-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 24px 0;
+    padding: 12px;
+    border-bottom: 1px solid #35415a;
+}
+
+    /* Uiterlijk van de tabbladen */
+    .event-steps button {
+        flex: 1;
+        min-width: 125px;
+        padding: 14px 12px;
+        border: 1px solid #35415a;
+        border-radius: 8px;
+        background: transparent;
+        color: #b8c4d9;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        /* Wanneer je met je muis over een tab gaat */
+        .event-steps button:hover {
+            background: #263b60;
+            color: white;
+        }
+
+        /* Het geselecteerde tabblad */
+        .event-steps button.active {
+            background: #1769e0;
+            border-color: #1769e0;
+            color: white;
+            font-weight: 600;
+        }
+        #event-form-fields[hidden],
+        #event-summary[hidden] {
+            display: none !important;
+        }
