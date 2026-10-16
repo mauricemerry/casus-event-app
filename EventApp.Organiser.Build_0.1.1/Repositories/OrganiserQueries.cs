@@ -1,4 +1,5 @@
-﻿namespace EventApp.OrganiserPortal.Queries
+﻿
+namespace EventApp.OrganiserPortal.Queries
 {
     public static class OrganiserQueries
     {
@@ -21,6 +22,9 @@ WHERE oa.email = @Email
 SELECT
     e.event_id,
     e.event_name,
+    e.event_type,
+    e.start_datetime,
+    e.end_datetime,
     e.indoors_outdoors,
     e.description,
     e.canceled,
@@ -100,6 +104,10 @@ VALUES (
 INSERT INTO dbo.events (
     event_id,
     event_name,
+    event_type,
+    short_description,
+    start_datetime,
+    end_datetime,
     indoors_outdoors,
     has_standing_places,
     has_sitting_places,
@@ -108,12 +116,17 @@ INSERT INTO dbo.events (
     wheelchair_accessible_toilet,
     location_id,
     description,
+    notes,
     organiser_id,
     canceled
 )
 VALUES (
     @EventId,
     @EventName,
+    @EventType,
+    @ShortDescription,
+    @StartDateTime,
+    @EndDateTime,
     @IndoorsOutdoors,
     @HasStandingPlaces,
     @HasSittingPlaces,
@@ -122,6 +135,7 @@ VALUES (
     @WheelchairAccessibleToilet,
     @LocationId,
     @Description,
+    @Notes,
     @OrganiserId,
     0
 );";
@@ -208,8 +222,13 @@ VALUES (
 SELECT TOP 1
     e.event_id,
     e.event_name,
+    e.event_type,
+    e.short_description,
+    e.start_datetime,
+    e.end_datetime,
     e.indoors_outdoors,
     e.description,
+    e.notes,
     e.canceled,
     l.latitude,
     l.longitude,
@@ -228,8 +247,13 @@ WHERE e.event_id = @EventId
 UPDATE e
 SET
     e.event_name = @EventName,
+    e.event_type = @EventType,
+    e.short_description = @ShortDescription,
+    e.start_datetime = @StartDateTime,
+    e.end_datetime = @EndDateTime,
     e.indoors_outdoors = @IndoorsOutdoors,
     e.description = @Description,
+    e.notes = @Notes,
     e.has_standing_places = @HasStandingPlaces,
     e.has_sitting_places = @HasSittingPlaces,
     e.disabled_parking_available = @DisabledParkingAvailable,
