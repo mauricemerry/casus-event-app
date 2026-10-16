@@ -1,484 +1,840 @@
-﻿@page
+﻿
+@page
 @model EventApp.OrganiserPortal.Pages.Portal.CreateModel
 
 @{
     ViewData["Title"] = "Evenement aanmaken";
+
+    string[] access =
+    [
+        "Rolstoeltoegankelijk",
+        "Lift aanwezig",
+        "Toegankelijk toilet",
+        "Gebarentolk",
+        "Rustruimte",
+        "Slechthorenden",
+        "Slechtzienden",
+        "Geleidehond toegestaan"
+    ];
 }
 
 @section Head {
-    <link rel="stylesheet" href="~/css/pages/create.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/components/map.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/components/image-upload.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossorigin="" />
+    <link rel="stylesheet"
+          href="~/css/pages/create.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/components/map.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/components/image-upload.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 }
 
 <div class="portal-shell">
     <div class="portal-form-card">
-        
-        <h1>Evenement aanmaken</h1>
-        <p>Vul alle verplichte velden in.</p>
 
-        <nav class="event-steps" aria-label="Evenement stappen">
-            <button type="button" class="active" data-step="1">1. Basis</button>
-            <button type="button" data-step="2">2. Datum &amp; tijd</button>
-            <button type="button" data-step="3">3. Details</button>
-            <button type="button" data-step="4">4. Extra info</button>
-            <button type="button" data-step="5">5. Publiceren</button>
+        <header class="wizard-heading">
+            <h1>Evenement aanmaken</h1>
+
+            <a href="/Portal/Dashboard"
+               class="portal-secondary-link">
+                Annuleren
+            </a>
+        </header>
+
+        <!-- HOOFDNAVIGATIE -->
+
+        <nav class="event-steps" aria-label="Stappen">
+            <button type="button"
+                    data-step="1"
+                    class="active">
+                1 Basis
+            </button>
+
+            <button type="button" data-step="2">
+                2 Datum &amp; tijd
+            </button>
+
+            <button type="button" data-step="3">
+                3 Details
+            </button>
+
+            <button type="button" data-step="4">
+                4 Extra info
+            </button>
+
+            <button type="button" data-step="5">
+                5 Publiceren
+            </button>
         </nav>
 
+        <form method="post"
+              enctype="multipart/form-data"
+              id="wizard-form"
+              novalidate>
 
-        <form method="post" enctype="multipart/form-data" class="portal-form">
-            <div asp-validation-summary="ModelOnly" class="portal-validation-summary"></div>
+            <div asp-validation-summary="All"
+                 class="portal-validation-summary"></div>
 
-            <div class="portal-form-grid" id="event-form-fields">
-                <div class="portal-form-group">
-                    <label asp-for="Input.EventName">Evenement naam</label>
-                    <input asp-for="Input.EventName" />
-                    <span asp-validation-for="Input.EventName"></span>
-                </div>
+            <input asp-for="Input.IndoorsOutdoors"
+                   type="hidden"
+                   id="legacy-environment" />
 
-                <div class="portal-form-group">
-                    <label asp-for="Input.IndoorsOutdoors">@EventApp.OrganiserPortal.Models.IndoorsOutdoors.MESSAGES_NATURAL_LIST</label>
-                    <select asp-for="Input.IndoorsOutdoors">
-                        <option value="">Kies...</option>
-                        @foreach (var message in EventApp.OrganiserPortal.Models.IndoorsOutdoors.MESSAGES)
-                        {
-                        <option value=@message>@message</option>
-                        }
-                    </select>
-                    <span asp-validation-for="Input.IndoorsOutdoors"></span>
-                </div>
+            <!-- ===================================== -->
+            <!-- STAP 1: BASIS -->
+            <!-- ===================================== -->
 
-                <div class="portal-form-group portal-form-group--full">
-                    <label asp-for="Input.Description">Beschrijving</label>
-                    <textarea asp-for="Input.Description"></textarea>
-                    <span asp-validation-for="Input.Description"></span>
-                </div>
+            <section data-content-step="1"
+                     class="wizard-step">
 
-                <div class="portal-form-group portal-form-group--full">
-                    <label asp-for="Input.Address">Adres</label>
-                    <div class="portal-address-row">
-                        <input asp-for="Input.Address"
-                               id="address-input"
-                               placeholder="Typ een adres of plaats een pin op de kaart" />
-                        <button type="button" id="resolve-address-btn" class="portal-secondary-link">Zoek adres</button>
-                    </div>
-                    <span asp-validation-for="Input.Address"></span>
-                </div>
+                <h2>Basis</h2>
+                <p>Vertel ons wat voor evenement je organiseert.</p>
 
-                <div class="portal-form-group portal-form-group--full">
-                    <label>Locatie kiezen</label>
-                    <div class="portal-map-picker">
-                        <div id="event-location-map" class="portal-map-canvas"></div>
-                    </div>
-                    <p class="portal-map-help">
-                        Plaats een pin op de kaart of typ een adres. De dichtstbijzijnde match wordt automatisch gekozen.
-                    </p>
-                    <div id="map-status" class="portal-map-status" aria-live="polite"></div>
-                    <span asp-validation-for="Input.Latitude"></span>
-                    <span asp-validation-for="Input.Longitude"></span>
-                </div>
+                <div class="event-panel event-grid">
 
-                <input asp-for="Input.Latitude" type="hidden" id="latitude-input" />
-                <input asp-for="Input.Longitude" type="hidden" id="longitude-input" />
+                    <!-- NAAM STAAT NU BIJ BASIS -->
 
-                <div class="portal-form-group portal-form-group--full portal-image-upload">
-                    <label>Afbeeldingen</label>
+                    <div class="portal-form-group event-name-field">
 
-                    <input id="images-input" name="Images" type="file" accept="image/*" multiple hidden />
+                        <label asp-for="Input.EventName">
+                            Naam van het evenement
+                        </label>
 
-                    <div class="portal-image-strip-shell">
-                        <div id="image-strip" class="portal-image-strip"></div>
+                        <input asp-for="Input.EventName"
+                               placeholder="Bijvoorbeeld: Summer Festival"
+                               maxlength="255" />
+
+                        <span asp-validation-for="Input.EventName"></span>
+
                     </div>
 
-                    <div id="image-meta-inputs"></div>
+                    <div class="portal-form-group">
 
-                    <p class="portal-image-help">
-                        Upload maximaal 10 afbeeldingen. Afbeeldingen worden vierkant bijgesneden. Je kunt de positie per afbeelding aanpassen.
-                    </p>
-                </div>
+                        <label asp-for="Input.EventType">
+                            Evenementtype
+                        </label>
 
-                <div id="image-position-modal" class="portal-image-modal" hidden>
-                    <div class="portal-image-modal-card">
-                        <div class="portal-image-modal-header">
-                            <h3>Afbeelding positioneren</h3>
-                            <button type="button" id="close-image-modal" class="portal-image-modal-close">×</button>
-                        </div>
+                        <select asp-for="Input.EventType">
+                            <option value="">Kies type...</option>
+                            <option>Concert</option>
+                            <option>Festival</option>
+                            <option>Workshop</option>
+                            <option>Theater</option>
+                            <option>Sport</option>
+                            <option>Overig</option>
+                        </select>
 
-                        <div class="portal-image-modal-preview-wrap">
-                            <div class="portal-image-modal-preview">
-                                <img id="position-preview-image" alt="Voorbeeld van afbeelding uitsnede" />
-                            </div>
-                        </div>
+                        <span asp-validation-for="Input.EventType"></span>
 
-                        <div class="portal-image-modal-controls">
-                            <label for="position-x-range">Horizontale positie</label>
-                            <input id="position-x-range" type="range" min="0" max="100" step="1" value="50" />
-
-                            <label for="position-y-range">Verticale positie</label>
-                            <input id="position-y-range" type="range" min="0" max="100" step="1" value="50" />
-                        </div>
-
-                        <div class="portal-image-modal-actions">
-                            <button type="button" id="save-image-position" class="auth-submit-btn">Opslaan</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="portal-form-group portal-form-group--full">
-                    <label>Tickets</label>
-
-                    <div id="ticket-list" class="portal-ticket-list">
-                        @if (Model.Input.Tickets != null && Model.Input.Tickets.Count > 0)
-                        {
-                            for (var i = 0; i < Model.Input.Tickets.Count; i++)
-                            {
-                                <div class="portal-ticket-row">
-                                    <div class="portal-ticket-fields">
-                                        <div class="portal-form-group">
-                                            <label asp-for="Input.Tickets[i].TicketType">Ticketsoort</label>
-                                            <input asp-for="Input.Tickets[i].TicketType" />
-                                            <span asp-validation-for="Input.Tickets[i].TicketType"></span>
-                                        </div>
-
-                                        <div class="portal-form-group">
-                                            <label asp-for="Input.Tickets[i].Price">Prijs</label>
-                                            <input asp-for="Input.Tickets[i].Price" type="number" step="0.01" min="0" />
-                                            <span asp-validation-for="Input.Tickets[i].Price"></span>
-                                        </div>
-                                    </div>
-
-                                    <button type="button" class="portal-remove-ticket-btn">Verwijderen</button>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="portal-ticket-row">
-                                <div class="portal-ticket-fields">
-                                    <div class="portal-form-group">
-                                        <label for="Input_Tickets_0__TicketType">Ticketsoort</label>
-                                        <input id="Input_Tickets_0__TicketType" name="Input.Tickets[0].TicketType" />
-                                    </div>
-
-                                    <div class="portal-form-group">
-                                        <label for="Input_Tickets_0__Price">Prijs</label>
-                                        <input id="Input_Tickets_0__Price" name="Input.Tickets[0].Price" type="number" step="0.01" min="0" />
-                                    </div>
-                                </div>
-
-                                <button type="button" class="portal-remove-ticket-btn">Verwijderen</button>
-                            </div>
-                        }
                     </div>
 
-                    <button type="button" id="add-ticket-btn" class="portal-secondary-link">Ticket toevoegen</button>
-                </div>
+                    <div class="portal-form-group">
 
-                <div class="portal-form-group">
-                    <label asp-for="Input.HasStandingPlaces">Staanplaatsen aanwezig</label>
-                    <select asp-for="Input.HasStandingPlaces">
-                        <option value="">Kies...</option>
-                        <option value="true">Ja</option>
-                        <option value="false">Nee</option>
-                    </select>
-                    <span asp-validation-for="Input.HasStandingPlaces"></span>
-                </div>
+                        <label asp-for="Input.ShortDescription">
+                            Korte omschrijving
+                        </label>
 
-                <div class="portal-form-group">
-                    <label asp-for="Input.HasSittingPlaces">Zitplaatsen aanwezig</label>
-                    <select asp-for="Input.HasSittingPlaces">
-                        <option value="">Kies...</option>
-                        <option value="true">Ja</option>
-                        <option value="false">Nee</option>
-                    </select>
-                    <span asp-validation-for="Input.HasSittingPlaces"></span>
-                </div>
+                        <input asp-for="Input.ShortDescription"
+                               maxlength="500"
+                               placeholder="Korte introductie" />
 
-                <div class="portal-form-group">
-                    <label asp-for="Input.DisabledParkingAvailable">Invalidenparkeerplaats aanwezig</label>
-                    <select asp-for="Input.DisabledParkingAvailable">
-                        <option value="">Kies...</option>
-                        <option value="true">Ja</option>
-                        <option value="false">Nee</option>
-                    </select>
-                    <span asp-validation-for="Input.DisabledParkingAvailable"></span>
-                </div>
+                        <span asp-validation-for="Input.ShortDescription"></span>
 
-                <div class="portal-form-group">
-                    <label asp-for="Input.DisabledToiletAvailable">Invalidentoilet aanwezig</label>
-                    <select asp-for="Input.DisabledToiletAvailable">
-                        <option value="">Kies...</option>
-                        <option value="true">Ja</option>
-                        <option value="false">Nee</option>
-                    </select>
-                    <span asp-validation-for="Input.DisabledToiletAvailable"></span>
-                </div>
-
-                <div class="portal-form-group">
-                    <label asp-for="Input.WheelchairAccessibleToilet">Rolstoeltoegankelijk toilet</label>
-                    <select asp-for="Input.WheelchairAccessibleToilet">
-                        <option value="">Kies...</option>
-                        <option value="true">Ja</option>
-                        <option value="false">Nee</option>
-                    </select>
-                    <span asp-validation-for="Input.WheelchairAccessibleToilet"></span>
-                </div>
-
-                <div class="portal-form-group portal-form-group--full">
-                    <label for="categories-input">Categorieën</label>
-                    <div id="categories-tagbox" class="portal-tagbox"></div>
-                    <input id="categories-input"
-                           type="text"
-                           class="portal-tag-input"
-                           placeholder="Typ een categorie en druk op Enter"
-                           autocomplete="off" />
-                    <div id="categories-suggestions" class="portal-tag-suggestions"></div>
-                    <div id="categories-hidden-inputs">
-                        @if (Model.Input.Categories != null)
-                        {
-                            for (var i = 0; i < Model.Input.Categories.Count; i++)
-                            {
-                                <input type="hidden" name="Input.Categories[@i]" value="@Model.Input.Categories[i]" />
-                            }
-                        }
                     </div>
+
                 </div>
-
-                <div class="portal-form-group portal-form-group--full">
-                    <label for="accessibility-input">Toegankelijkheid</label>
-                    <div id="accessibility-tagbox" class="portal-tagbox"></div>
-                    <input id="accessibility-input"
-                           type="text"
-                           class="portal-tag-input"
-                           placeholder="Typ een toegankelijkheidsoptie en druk op Enter"
-                           autocomplete="off" />
-                    <div id="accessibility-suggestions" class="portal-tag-suggestions"></div>
-                    <div id="accessibility-hidden-inputs">
-                        @if (Model.Input.AccessibilityOptions != null)
-                        {
-                            for (var i = 0; i < Model.Input.AccessibilityOptions.Count; i++)
-                            {
-                                <input type="hidden" name="Input.AccessibilityOptions[@i]" value="@Model.Input.AccessibilityOptions[i]" />
-                            }
-                        }
-                    </div>
-                </div>
-            </div>
-            
-            <section id="event-summary" hidden>
-                <h2>Controleer je evenement</h2>
-
-                <p>
-                    <strong>Evenementnaam:</strong>
-                    <span id="summary-name">Nog niet ingevuld</span>
-                </p>
-
-                <p>
-                    gimme sum time too fix fucker, im learning.
-                </p>
             </section>
 
-            <div class="portal-form-actions">
-                <a href="/Portal/Dashboard" class="portal-secondary-link">Annuleren</a>
-                <button type="submit" class="auth-submit-btn">Evenement opslaan</button>
+            <!-- ===================================== -->
+            <!-- STAP 2: DATUM EN TIJD -->
+            <!-- ===================================== -->
+
+            <section data-content-step="2"
+                     class="wizard-step"
+                     hidden>
+
+                <h2>Datum &amp; tijd</h2>
+
+                <p>
+                    Voeg één of meer periodes toe.
+                    Elke periode heeft een naam,
+                    een begindatum en een einddatum met tijden.
+                </p>
+
+                <div class="table-scroll">
+
+                    <div class="period-table">
+
+                        <div class="period-head">
+                            <b>Naam / periode</b>
+                            <b>Startdatum</b>
+                            <b>Starttijd</b>
+                            <b>Einddatum</b>
+                            <b>Eindtijd</b>
+                            <b>Acties</b>
+                        </div>
+
+                        <div id="period-list">
+
+                            @for (int i = 0; i < Model.Input.Periods.Count; i++)
+                            {
+                                <div class="period-row">
+
+                                    <input asp-for="Input.Periods[i].Name"
+                                           placeholder="Naam periode" />
+
+                                    <input asp-for="Input.Periods[i].StartDate"
+                                           type="date" />
+
+                                    <input asp-for="Input.Periods[i].StartTime"
+                                           type="time" />
+
+                                    <input asp-for="Input.Periods[i].EndDate"
+                                           type="date" />
+
+                                    <input asp-for="Input.Periods[i].EndTime"
+                                           type="time" />
+
+                                    <button type="button"
+                                            class="remove-row"
+                                            aria-label="Periode verwijderen">
+                                        ✕
+                                    </button>
+
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button"
+                        id="add-period"
+                        class="portal-secondary-link">
+                    + Periode toevoegen
+                </button>
+
+            </section>
+
+            <!-- ===================================== -->
+            <!-- STAP 3: DETAILS -->
+            <!-- ===================================== -->
+
+            <section data-content-step="3"
+                     class="wizard-step"
+                     hidden>
+
+                <h2>Details</h2>
+
+                <div class="details-grid">
+
+                    <!-- LINKERKOLOM -->
+
+                    <div class="details-left">
+
+                        <!-- NAAM IS HIER WEGGEHAALD -->
+
+                        <div class="event-panel portal-form-group">
+
+                            <label asp-for="Input.Description">
+                                Omschrijving
+                            </label>
+
+                            <textarea asp-for="Input.Description"
+                                      rows="12"
+                                      placeholder="Beschrijf het evenement..."></textarea>
+
+                            <span asp-validation-for="Input.Description"></span>
+
+                        </div>
+
+                    </div>
+
+                    <!-- RECHTERKOLOM -->
+
+                    <div class="details-right">
+
+                        <div class="event-panel portal-form-group photo-panel">
+
+                            <label>Foto's</label>
+
+                            <input id="images-input"
+                                   name="Images"
+                                   type="file"
+                                   accept=".jpg,.jpeg,.png,.webp"
+                                   multiple
+                                   hidden />
+
+                            <!-- SCROLLCONTAINER VOOR FOTO'S -->
+
+                            <div class="portal-image-strip-shell">
+
+                                <div id="image-strip"
+                                     class="portal-image-strip"></div>
+
+                            </div>
+
+                            <div id="image-meta-inputs"></div>
+
+                            <small>
+                                Maximaal 10 foto's, 5 MB per foto.
+                            </small>
+
+                        </div>
+
+                        <div class="event-panel">
+
+                            <h3>Omgeving</h3>
+
+                            <p>Meerdere opties mogelijk</p>
+
+                            <div class="choice-grid">
+
+                                <label class="choice">
+
+                                    <input asp-for="Input.IsIndoor"
+                                           type="checkbox" />
+
+                                    Binnen
+
+                                </label>
+
+                                <label class="choice">
+
+                                    <input asp-for="Input.IsOutdoor"
+                                           type="checkbox" />
+
+                                    Buiten
+
+                                </label>
+
+                                <label class="choice">
+
+                                    <input asp-for="Input.IsOnline"
+                                           type="checkbox" />
+
+                                    Online
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ===================================== -->
+            <!-- STAP 4: EXTRA INFO -->
+            <!-- ===================================== -->
+
+            <section data-content-step="4"
+                     class="wizard-step"
+                     hidden>
+
+                <h2>Extra info</h2>
+
+                <nav class="extra-tabs"
+                     aria-label="Extra info onderdelen">
+
+                    <button type="button"
+                            data-extra="access"
+                            class="active">
+                        Toegankelijkheid
+                    </button>
+
+                    <button type="button"
+                            data-extra="locations">
+                        Locaties
+                    </button>
+
+                    <button type="button"
+                            data-extra="tickets">
+                        Tickets
+                    </button>
+
+                </nav>
+
+                <!-- TOEGANKELIJKHEID -->
+
+                <div data-extra-content="access"
+                     class="extra-content">
+
+                    <div class="event-panel">
+
+                        <h3>Toegankelijkheid</h3>
+
+                        <div class="access-grid">
+
+                            @foreach (var option in access)
+                            {
+                                <label class="choice">
+
+                                    <input type="checkbox"
+                                           name="Input.AccessibilityOptions"
+                                           value="@option"
+                                           checked="@(Model.Input.AccessibilityOptions.Contains(option))" />
+
+                                    @option
+
+                                </label>
+                            }
+
+                        </div>
+
+                        <label class="choice full-choice">
+
+                            <input asp-for="Input.HasOtherAccessibility"
+                                   type="checkbox"
+                                   id="other-access" />
+
+                            Overige
+
+                        </label>
+
+                        <div id="other-access-wrap"
+                             class="portal-form-group"
+                             hidden>
+
+                            <label asp-for="Input.OtherAccessibilityDescription">
+                                Toelichting overige toegankelijkheid
+                            </label>
+
+                            <textarea asp-for="Input.OtherAccessibilityDescription"
+                                      rows="2"
+                                      maxlength="240"
+                                      placeholder="Beschrijf overige voorzieningen..."></textarea>
+
+                        </div>
+
+                    </div>
+
+                    <div class="event-panel portal-form-group">
+
+                        <label asp-for="Input.Notes">
+                            Notities
+                        </label>
+
+                        <textarea asp-for="Input.Notes"
+                                  rows="4"
+                                  placeholder="Extra informatie voor bezoekers..."></textarea>
+
+                    </div>
+
+                    <div class="event-panel portal-form-group">
+
+                        <label asp-for="Input.SelectedCategory">
+                            Categorie
+                        </label>
+
+                        <select asp-for="Input.SelectedCategory">
+                            <option value="">Kies categorie</option>
+                            <option>Muziek</option>
+                            <option>Festival</option>
+                            <option>Theater</option>
+                            <option>Sport</option>
+                            <option>Workshop</option>
+                            <option>Overig</option>
+                        </select>
+
+                    </div>
+
+                    <div class="event-panel portal-form-group">
+
+                        <label for="tag-text">
+                            Tags
+                        </label>
+
+                        <div id="tags-list"
+                             class="tags-list">
+
+                            @for (int i = 0; i < Model.Input.Tags.Count; i++)
+                            {
+                                <input type="hidden"
+                                       name="Input.Tags[@i]"
+                                       value="@Model.Input.Tags[i]" />
+                            }
+
+                        </div>
+
+                        <input id="tag-text"
+                               placeholder="Typ een tag en druk op Enter"
+                               maxlength="100" />
+
+                    </div>
+
+                </div>
+
+                <!-- LOCATIES -->
+
+                <div data-extra-content="locations"
+                     class="extra-content"
+                     hidden>
+
+                    <div class="location-tabs"
+                         id="location-tabs"></div>
+
+                    <div class="location-layout">
+
+                        <div id="location-list">
+
+                            @for (int i = 0; i < Model.Input.Locations.Count; i++)
+                            {
+                                <div class="event-panel location-row"
+                                     data-location-row>
+
+                                    <div class="portal-form-group">
+
+                                        <label>Locatienaam</label>
+
+                                        <input asp-for="Input.Locations[i].Name"
+                                               class="location-name"
+                                               placeholder="Hoofdingang" />
+
+                                    </div>
+
+                                    <div class="portal-form-group">
+
+                                        <label>Plaats</label>
+
+                                        <input asp-for="Input.Locations[i].City"
+                                               placeholder="Plaats" />
+
+                                    </div>
+
+                                    <div class="portal-form-group">
+
+                                        <label>Straat</label>
+
+                                        <input asp-for="Input.Locations[i].Street"
+                                               placeholder="Straat" />
+
+                                    </div>
+
+                                    <div class="event-grid">
+
+                                        <div class="portal-form-group">
+
+                                            <label>Nummer</label>
+
+                                            <input asp-for="Input.Locations[i].Number"
+                                                   placeholder="Huisnummer" />
+
+                                        </div>
+
+                                        <div class="portal-form-group">
+
+                                            <label>Toevoeging</label>
+
+                                            <input asp-for="Input.Locations[i].Addition"
+                                                   placeholder="Optioneel" />
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="portal-form-group">
+
+                                        <label>Postcode</label>
+
+                                        <input asp-for="Input.Locations[i].PostalCode"
+                                               placeholder="Postcode" />
+
+                                    </div>
+
+                                    <input asp-for="Input.Locations[i].Latitude"
+                                           type="hidden"
+                                           class="location-lat" />
+
+                                    <input asp-for="Input.Locations[i].Longitude"
+                                           type="hidden"
+                                           class="location-lng" />
+
+                                    <button type="button"
+                                            class="remove-location portal-secondary-link">
+                                        Locatie verwijderen
+                                    </button>
+
+                                </div>
+                            }
+
+                        </div>
+
+                        <div class="event-panel location-map-panel">
+
+                            <div id="event-location-map"
+                                 class="portal-map-canvas"></div>
+
+                            <button type="button"
+                                    id="find-location"
+                                    class="portal-secondary-link">
+                                Zoek adres / kies locatie
+                            </button>
+
+                            <p id="map-status"
+                               aria-live="polite">
+                                Klik op de kaart om een pin te plaatsen.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- TICKETS -->
+
+                <div data-extra-content="tickets"
+                     class="extra-content"
+                     hidden>
+
+                    <h3>Tickets</h3>
+
+                    <p>Alle velden zijn aanpasbaar per ticket.</p>
+
+                    <div id="ticket-list">
+
+                        @for (int i = 0; i < Model.Input.Tickets.Count; i++)
+                        {
+                            var t = Model.Input.Tickets[i];
+
+                            <div class="ticket-row">
+
+                                <input asp-for="Input.Tickets[i].TicketType"
+                                       class="ticket-name"
+                                       placeholder="Naam" />
+
+                                <div class="ticket-price-wrap">
+
+                                    <input asp-for="Input.Tickets[i].Price"
+                                           class="ticket-price"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           placeholder="Prijs (€)" />
+
+                                </div>
+
+                                <select asp-for="Input.Tickets[i].DateType"
+                                        class="ticket-kind">
+
+                                    <option>Gratis</option>
+                                    <option>Dagticket</option>
+                                    <option>Periode</option>
+                                    <option>Tijdslot</option>
+
+                                </select>
+
+                                <div class="ticket-dates">
+
+                                    <div class="ticket-single">
+
+                                        <input asp-for="Input.Tickets[i].TicketDate"
+                                               type="date" />
+
+                                    </div>
+
+                                    <div class="ticket-slot">
+
+                                        <input asp-for="Input.Tickets[i].SlotStart"
+                                               type="time" />
+
+                                        <input asp-for="Input.Tickets[i].SlotEnd"
+                                               type="time" />
+
+                                    </div>
+
+                                    <div class="ticket-period">
+
+                                        <div class="period-date-list">
+
+                                            @for (int j = 0; j < t.PeriodDates.Count; j++)
+                                            {
+                                                <input type="date"
+                                                       name="Input.Tickets[@i].PeriodDates[@j]"
+                                                       value="@(t.PeriodDates[j]?.ToString("yyyy-MM-dd"))" />
+                                            }
+
+                                        </div>
+
+                                        <button type="button"
+                                                class="add-day portal-secondary-link">
+                                            + dag toevoegen
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                                <button type="button"
+                                        class="remove-ticket remove-row"
+                                        aria-label="Ticket verwijderen">
+                                    ✕
+                                </button>
+
+                            </div>
+                        }
+
+                    </div>
+
+                    <button type="button"
+                            id="add-ticket"
+                            class="portal-secondary-link">
+                        + Ticket toevoegen
+                    </button>
+
+                    <p>
+                        <small>
+                            Bij type Gratis of ticketnaam Gratis
+                            wordt de prijs automatisch €0.
+                        </small>
+                    </p>
+
+                </div>
+
+            </section>
+
+            <!-- ===================================== -->
+            <!-- STAP 5: PUBLICEREN -->
+            <!-- ===================================== -->
+
+            <section data-content-step="5"
+                     class="wizard-step"
+                     hidden>
+
+                <h2>Publiceren</h2>
+
+                <p>Controleer alle ingevulde gegevens.</p>
+
+                <div id="summary-content"
+                     class="summary-grid"></div>
+
+            </section>
+
+            <!-- ===================================== -->
+            <!-- ONDERSTE NAVIGATIE -->
+            <!-- ===================================== -->
+
+            <div class="event-navigation">
+
+                <button type="button"
+                        id="previous-step"
+                        class="portal-secondary-link">
+                    ← Vorige
+                </button>
+
+                <span id="step-counter">
+                    Stap 1 van 5
+                </span>
+
+                <button type="button"
+                        id="next-step"
+                        class="auth-submit-btn">
+                    Volgende →
+                </button>
+
+                <button type="submit"
+                        id="publish-event"
+                        class="auth-submit-btn"
+                        hidden>
+                    Evenement opslaan
+                </button>
+
             </div>
+
+            <!-- ===================================== -->
+            <!-- AFBEELDING POSITIONEREN -->
+            <!-- ===================================== -->
+
+            <div id="image-position-modal"
+                 class="portal-image-modal"
+                 hidden>
+
+                <div class="portal-image-modal-card">
+
+                    <div class="portal-image-modal-header">
+
+                        <h3>Afbeelding positioneren</h3>
+
+                        <button type="button"
+                                id="close-image-modal"
+                                class="portal-image-modal-close">
+                            ×
+                        </button>
+
+                    </div>
+
+                    <div class="portal-image-modal-preview-wrap">
+
+                        <div class="portal-image-modal-preview">
+
+                            <img id="position-preview-image"
+                                 alt="Foto bijsnijden" />
+
+                        </div>
+
+                    </div>
+
+                    <div class="portal-image-modal-controls">
+
+                        <label for="position-x-range">
+                            Horizontaal
+                        </label>
+
+                        <input id="position-x-range"
+                               type="range"
+                               min="0"
+                               max="100"
+                               value="50" />
+
+                        <label for="position-y-range">
+                            Verticaal
+                        </label>
+
+                        <input id="position-y-range"
+                               type="range"
+                               min="0"
+                               max="100"
+                               value="50" />
+
+                    </div>
+
+                    <div class="portal-image-modal-actions">
+
+                        <button type="button"
+                                id="save-image-position"
+                                class="auth-submit-btn">
+                            Opslaan
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </form>
+
     </div>
 </div>
 
 @section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script src="~/js/create-event-map.js" asp-append-version="true"></script>
-    <script src="~/js/image-upload-strip.js" asp-append-version="true"></script>
+    <script src="~/js/image-upload-strip.js"
+            asp-append-version="true"></script>
 
-    <script>
-        (() => {
-            const ticketList = document.getElementById('ticket-list');
-            const addTicketBtn = document.getElementById('add-ticket-btn');
-
-            function getTicketCount() {
-                return ticketList.querySelectorAll('.portal-ticket-row').length;
-            }
-
-            function createTicketRow(index) {
-                const row = document.createElement('div');
-                row.className = 'portal-ticket-row';
-
-                row.innerHTML = `
-                    <div class="portal-ticket-fields">
-                        <div class="portal-form-group">
-                            <label for="Input_Tickets_${index}__TicketType">Ticketsoort</label>
-                            <input id="Input_Tickets_${index}__TicketType" name="Input.Tickets[${index}].TicketType" />
-                        </div>
-
-                        <div class="portal-form-group">
-                            <label for="Input_Tickets_${index}__Price">Prijs</label>
-                            <input id="Input_Tickets_${index}__Price" name="Input.Tickets[${index}].Price" type="number" step="0.01" min="0" />
-                        </div>
-                    </div>
-
-                    <button type="button" class="portal-remove-ticket-btn">Verwijderen</button>
-                `;
-
-                return row;
-            }
-
-            function reindexTickets() {
-                const rows = ticketList.querySelectorAll('.portal-ticket-row');
-
-                rows.forEach((row, index) => {
-                    const typeLabel = row.querySelector('label[for^="Input_Tickets_"][for$="__TicketType"]');
-                    const typeInput = row.querySelector('input[name^="Input.Tickets["][name$="].TicketType"]');
-                    const priceLabel = row.querySelector('label[for^="Input_Tickets_"][for$="__Price"]');
-                    const priceInput = row.querySelector('input[name^="Input.Tickets["][name$="].Price"]');
-
-                    if (typeLabel) typeLabel.setAttribute('for', `Input_Tickets_${index}__TicketType`);
-                    if (typeInput) {
-                        typeInput.id = `Input_Tickets_${index}__TicketType`;
-                        typeInput.name = `Input.Tickets[${index}].TicketType`;
-                    }
-
-                    if (priceLabel) priceLabel.setAttribute('for', `Input_Tickets_${index}__Price`);
-                    if (priceInput) {
-                        priceInput.id = `Input_Tickets_${index}__Price`;
-                        priceInput.name = `Input.Tickets[${index}].Price`;
-                    }
-                });
-            }
-
-            if (addTicketBtn && ticketList) {
-                addTicketBtn.addEventListener('click', () => {
-                    const index = getTicketCount();
-                    ticketList.appendChild(createTicketRow(index));
-                });
-
-                ticketList.addEventListener('click', (event) => {
-                    const removeBtn = event.target.closest('.portal-remove-ticket-btn');
-                    if (!removeBtn) return;
-
-                    const row = removeBtn.closest('.portal-ticket-row');
-                    if (!row) return;
-
-                    row.remove();
-                    reindexTickets();
-                });
-            }
-        })();
-
-        (() => {
-            function setupTagInput(config) {
-                const input = document.getElementById(config.inputId);
-                const tagbox = document.getElementById(config.tagboxId);
-                const hiddenInputs = document.getElementById(config.hiddenInputsId);
-
-                if (!input || !tagbox || !hiddenInputs) return;
-
-                const values = Array.from(hiddenInputs.querySelectorAll('input[type="hidden"]'))
-                    .map(x => x.value)
-                    .filter(x => x && x.trim() !== '');
-
-                function render() {
-                    tagbox.innerHTML = '';
-                    hiddenInputs.innerHTML = '';
-
-                    values.forEach((value, index) => {
-                        const tag = document.createElement('button');
-                        tag.type = 'button';
-                        tag.className = 'portal-tag';
-                        tag.innerHTML = `<span>${value}</span><span aria-hidden="true">×</span>`;
-                        tag.addEventListener('click', () => {
-                            values.splice(index, 1);
-                            render();
-                        });
-
-                        tagbox.appendChild(tag);
-
-                        const hidden = document.createElement('input');
-                        hidden.type = 'hidden';
-                        hidden.name = `${config.name}[${index}]`;
-                        hidden.value = value;
-                        hiddenInputs.appendChild(hidden);
-                    });
-                }
-
-                function addValue(rawValue) {
-                    const value = rawValue.trim();
-                    if (!value) return;
-                    if (values.some(x => x.toLowerCase() === value.toLowerCase())) return;
-
-                    values.push(value);
-                    input.value = '';
-                    render();
-                }
-
-                input.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter' || event.key === ',') {
-                        event.preventDefault();
-                        addValue(input.value);
-                    }
-                });
-
-                input.addEventListener('blur', () => {
-                    if (input.value.trim() !== '') {
-                        addValue(input.value);
-                    }
-                });
-
-                render();
-            }
-
-            setupTagInput({
-                inputId: 'categories-input',
-                tagboxId: 'categories-tagbox',
-                hiddenInputsId: 'categories-hidden-inputs',
-                name: 'Input.Categories'
-            });
-
-            setupTagInput({
-                inputId: 'accessibility-input',
-                tagboxId: 'accessibility-tagbox',
-                hiddenInputsId: 'accessibility-hidden-inputs',
-                name: 'Input.AccessibilityOptions'
-            });
-        })();
-
-       
-        document.addEventListener("DOMContentLoaded", function () {
-            const buttons = document.querySelectorAll(".event-steps button");
-            const formFields = document.getElementById("event-form-fields");
-            const summary = document.getElementById("event-summary");
-
-            buttons.forEach(function (button) {
-                button.addEventListener("click", function () {
-                    const step = Number(button.dataset.step);
-
-                    buttons.forEach(function (otherButton) {
-                        otherButton.classList.remove("active");
-                    });
-
-                    button.classList.add("active");
-
-                    // Stap 5 toont de samenvatting.
-                    const showSummary = step === 5;
-
-                    formFields.hidden = showSummary;
-                    summary.hidden = !showSummary;
-                    if (showSummary) { 
-                        const nameInput = document.querySelector('Input[name="Input.EventName"]');
-                        document.getElementById("summary-name").TextContent = nameInput?.value ||"Nog niet ingevuld";
-                    }
-                });
-            });
-        });
-
-
-    </script>
+    <script src="~/js/create-event-wizard.js"
+            asp-append-version="true"></script>
 }
