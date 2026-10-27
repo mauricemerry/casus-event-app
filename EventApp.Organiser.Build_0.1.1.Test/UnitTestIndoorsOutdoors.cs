@@ -2,6 +2,7 @@
 using EventApp.OrganiserPortal.Repositories;
 using Microsoft.AspNetCore.Diagnostics;
 using Moq;
+using NUnit.Framework.Internal;
 
 namespace EventApp.Organiser.Build_0._1._1.Test
 {
@@ -26,13 +27,21 @@ namespace EventApp.Organiser.Build_0._1._1.Test
         [TestCase("Binnen", 1)]
         [TestCase("Buiten", 2)]
         [TestCase("Beide", 3)]
-        [TestCase("", -1)]
         public void GetValue_WithValidMessage_ReturnsCorrectValue(string message, int expected)
         {
             // Act
             var result = IndoorsOutdoors.GetValue(message);
             // Assert
             Assert.That(result, Is.EqualTo(expected));
+        }
+        //jesse
+        //assert 
+        [TestCase("", -1)]
+        public void TrowExeptionWhenStringIsInvalid(string message, int expected) 
+        {
+            //Act
+            var result = IndoorsOutdoors.GetValue(message);
+            
         }
     }
 }
