@@ -181,33 +181,42 @@
 
                         <div id="period-list">
 
-                            @for (int i = 0; i < Model.Input.Periods.Count; i++)
-                            {
-                                <div class="period-row">
+                            
+                                @for (var i = 0; i < Model.Input.Periods.Count; i++)
+                                {
+                                    <div class="period-row">
+                                        <label>Naam periode</label>
+                                        <input asp-for="Input.Periods[i].Name"
+                                               data-period-field="Name"
+                                               maxlength="100" />
 
-                                    <input asp-for="Input.Periods[i].Name"
-                                           placeholder="Naam periode" />
+                                        <label>Startdatum</label>
+                                        <input asp-for="Input.Periods[i].StartDate"
+                                               data-period-field="StartDate"
+                                               type="date" />
 
-                                    <input asp-for="Input.Periods[i].StartDate"
-                                           type="date" />
+                                        <label>Starttijd</label>
+                                        <input asp-for="Input.Periods[i].StartTime"
+                                               data-period-field="StartTime"
+                                               type="time" />
 
-                                    <input asp-for="Input.Periods[i].StartTime"
-                                           type="time" />
+                                        <label>Einddatum</label>
+                                        <input asp-for="Input.Periods[i].EndDate"
+                                               data-period-field="EndDate"
+                                               type="date" />
 
-                                    <input asp-for="Input.Periods[i].EndDate"
-                                           type="date" />
+                                        <label>Eindtijd</label>
+                                        <input asp-for="Input.Periods[i].EndTime"
+                                               data-period-field="EndTime"
+                                               type="time" />
 
-                                    <input asp-for="Input.Periods[i].EndTime"
-                                           type="time" />
+                                        <button type="button"
+                                                class="remove-period-btn">
+                                            Verwijderen
+                                        </button>
+                                    </div>
+                                }
 
-                                    <button type="button"
-                                            class="remove-row"
-                                            aria-label="Periode verwijderen">
-                                        ✕
-                                    </button>
-
-                                </div>
-                            }
 
                         </div>
                     </div>
