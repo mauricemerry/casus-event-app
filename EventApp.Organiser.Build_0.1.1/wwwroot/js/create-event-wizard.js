@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ====================================
 
     function showStep(n) {
-        step = Math.max(1, Math.min(5, n));
+        step = Math.max(1, Math.min(6, n));
 
         $$("[data-content-step]").forEach(element => {
             element.hidden =
@@ -36,9 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         });
 
-        $("#previous-step").disabled = step === 1;
-        $("#next-step").hidden = step === 5;
-        $("#publish-event").hidden = step !== 5;
+        $("#previous-step").hidden = step === 1;
+        $("#next-step").hidden = step === 6;
+        $("#publish-event").hidden = step !== 6;
 
         $("#step-counter").textContent = `Stap ${step} van 5`;
 
@@ -451,18 +451,35 @@ document.addEventListener("DOMContentLoaded", () => {
     // 5. LEAFLET-KAART
     // ====================================
 
+
     function refreshMap() {
+        console.log("refreshMap called", {
+            leaflet: !!window.L,
+            step,
+            extra
+        });
+        const mapElement = $("#event-location-map");
+
         if (
+            !mapElement ||
             !window.L ||
             step !== 4 ||
             extra !== "locations"
         ) {
+            console.warn("Kaart niet klaar:", {
+                element: !!mapElement,
+                leaflet: !!window.L,
+                step,
+                extra
+            });
             return;
         }
 
         if (!map) {
-            map = L.map("event-location-map")
-                .setView([50.8882, 5.9795], 13);
+            map = L.map(mapElement).setView(
+                [50.8882, 5.9795],
+                13
+            );
 
             L.tileLayer(
                 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -485,110 +502,37 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             map.invalidateSize();
-        }, 50);
 
-        const row = currentLocation();
-        if (!row) return;
-
-        const latField = $(".location-lat", row);
-        const lngField = $(".location-lng", row);
-
-        if (latField.value && lngField.value) {
-            const lat = coord(latField);
-            const lng = coord(lngField);
-
-            if (
-                Number.isFinite(lat) &&
-                Number.isFinite(lng)
-            ) {
-                setPin(lat, lng);
-                map.setView([lat, lng], 15);
-            }
-        } else if (marker) {
-            map.removeLayer(marker);
-            marker = null;
-        }
-    }
-
-    function setPin(lat, lng) {
-        if (!map) return;
-
-        if (marker) {
-            marker.setLatLng([lat, lng]);
-        } else {
-            marker = L.marker(
-                [lat, lng],
-                { draggable: true }
-            ).addTo(map);
-
-            marker.on("dragend", event => {
-                const position = event.target.getLatLng();
-                setCoords(position.lat, position.lng);
-            });
-        }
-
-        $("#map-status").textContent =
-            `Pin gekozen: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-    }
-
-    $("#find-location").addEventListener(
-        "click",
-        async () => {
             const row = currentLocation();
             if (!row) return;
 
-            const values = [
-                "Street",
-                "Number",
-                "PostalCode",
-                "City"
-            ]
-            .map(key =>
-                $(`[name$=".${key}"]`, row)?.value || ""
-            )
-            .filter(Boolean);
+            const lat = coord($(".location-lat", row));
+            const lng = coord($(".location-lng", row));
 
-            if (!values.length) {
-                $("#map-status").textContent =
-                    "Vul eerst adresgegevens in.";
-                return;
-            }
-
-            $("#map-status").textContent =
-                "Locatie zoeken...";
-
-            try {
-                const url =
-                    "https://nominatim.openstreetmap.org/search" +
-                    "?format=jsonv2&limit=1&q=" +
-                    encodeURIComponent(values.join(" "));
-
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    throw new Error("Zoeken mislukt");
+            if (
+                $(".location-lat", row).value &&
+                $(".location-lng", row).value &&
+                Number.isFinite(lat) &&
+                Number.isFinite(lng) &&
+                lat >= -90 && lat <= 90 &&
+                lng >= -180 && lng <= 180
+            ) {
+                setPin(lat, lng);
+                map.setView([lat, lng], 15);
+            } else {
+                if (marker) {
+                    map.removeLayer(marker);
+                    marker = null;
                 }
 
-                const matches = await response.json();
-
-                if (!matches.length) {
-                    throw new Error("Geen resultaat");
-                }
-
-                const lat = Number(matches[0].lat);
-                const lng = Number(matches[0].lon);
-
-                setCoords(lat, lng);
-                refreshMap();
-
-            } catch {
                 $("#map-status").textContent =
-                    "Adres niet gevonden. Kies zelf een pin.";
+                    "Klik op de kaart om een locatie te kiezen.";
             }
-        }
-    );
+        });
+    }
+
 
     renderLocationTabs();
 
