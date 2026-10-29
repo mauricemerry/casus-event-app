@@ -69,8 +69,7 @@ namespace EventApp.OrganiserPortal.Repositories
                     EventId = reader.GetInt32(reader.GetOrdinal("event_id")),
                     EventName = reader.GetString(reader.GetOrdinal("event_name")),
 
-                    IndoorsOutdoors = IndoorsOutdoors.GetMessage(
-                        reader.GetInt32(reader.GetOrdinal("indoors_outdoors"))),
+                    Environment = reader.GetInt32(reader.GetOrdinal("indoors_outdoors")),
 
                     Description = reader.IsDBNull(reader.GetOrdinal("description"))
                         ? string.Empty
@@ -224,6 +223,8 @@ namespace EventApp.OrganiserPortal.Repositories
                 return null;
             }
 
+            int env = reader.GetInt32(reader.GetOrdinal("indoors_outdoors"));
+
             return new CreateEventInputModel
             {
                 EventName = reader.GetString(reader.GetOrdinal("event_name")),
@@ -241,8 +242,9 @@ namespace EventApp.OrganiserPortal.Repositories
 
                 Notes = GetNullableString(reader, "notes"),
 
-                IndoorsOutdoors = IndoorsOutdoors.GetMessage(
-                    reader.GetInt32(reader.GetOrdinal("indoors_outdoors"))),
+                IsIndoor = EventEnvironment.IsIndoors(env),
+                IsOutdoor = EventEnvironment.IsOutdoors(env),
+                IsOnline = EventEnvironment.IsOnline(env),
 
                 Description = GetNullableString(reader, "description"),
 
@@ -300,7 +302,7 @@ namespace EventApp.OrganiserPortal.Repositories
 
                     eventCommand.Parameters.AddWithValue(
                         "@IndoorsOutdoors",
-                        IndoorsOutdoors.GetValue(input.IndoorsOutdoors));
+                        EventEnvironment.GetFlags(input.IsIndoor, input.IsOutdoor, input.IsOnline));
 
                     eventCommand.Parameters.AddWithValue(
                         "@Description",
@@ -450,7 +452,7 @@ namespace EventApp.OrganiserPortal.Repositories
 
             command.Parameters.AddWithValue(
                 "@IndoorsOutdoors",
-                IndoorsOutdoors.GetValue(input.IndoorsOutdoors));
+                EventEnvironment.GetFlags(input.IsIndoor, input.IsOutdoor, input.IsOnline));
 
             command.Parameters.AddWithValue(
                 "@HasStandingPlaces",
@@ -514,7 +516,7 @@ namespace EventApp.OrganiserPortal.Repositories
                     "@EventTicketPriceId", nextTicketPriceId++);
 
                 command.Parameters.AddWithValue(
-                    "@TicketType", ticket.TicketType);
+                    "@TicketType", ticket.Name);
 
                 var priceParameter = command.Parameters.Add(
                     "@Price", SqlDbType.Decimal);
@@ -535,8 +537,8 @@ namespace EventApp.OrganiserPortal.Repositories
             int eventId,
             CreateEventInputModel input)
         {
-            if (input.AccessibilityOptions == null ||
-                input.AccessibilityOptions.Count == 0)
+            if (input.AccessibilityOptionDescriptions == null ||
+                input.AccessibilityOptionDescriptions.Count == 0)
             {
                 return;
             }
@@ -546,7 +548,7 @@ namespace EventApp.OrganiserPortal.Repositories
                 transaction,
                 OrganiserQueries.GetNextAccessibilityOptionId);
 
-            foreach (var option in input.AccessibilityOptions
+            foreach (var option in input.AccessibilityOptionDescriptions
                 .Where(x => !string.IsNullOrWhiteSpace(x)))
             {
                 await using var command = new SqlCommand(
@@ -572,55 +574,42 @@ namespace EventApp.OrganiserPortal.Repositories
             int eventId,
             CreateEventInputModel input)
         {
-            if (input.Categories == null || input.Categories.Count == 0)
+            if (input.Category == null)
             {
                 return;
             }
 
-            foreach (var categoryName in input.Categories
-                .Where(x => !string.IsNullOrWhiteSpace(x)))
+            int categoryId;
+
+            await using (var findCommand = new SqlCommand(
+                OrganiserQueries.FindCategoryByName,
+                connection,
+                transaction))
             {
-                int categoryId;
+                findCommand.Parameters.AddWithValue(
+                    "@CategoryName", input.Category.Name());
 
-                await using (var findCommand = new SqlCommand(
-                    OrganiserQueries.FindCategoryByName,
-                    connection,
-                    transaction))
+                var existingId = await findCommand.ExecuteScalarAsync();
+
+                if (existingId != null)
                 {
-                    findCommand.Parameters.AddWithValue(
-                        "@CategoryName", categoryName.Trim());
-
-                    var existingId = await findCommand.ExecuteScalarAsync();
-
-                    if (existingId != null)
-                    {
-                        categoryId = Convert.ToInt32(existingId);
-                    }
-                    else
-                    {
-                        await using var insertCategoryCommand = new SqlCommand(
-                            OrganiserQueries.InsertCategory,
-                            connection,
-                            transaction);
-
-                        insertCategoryCommand.Parameters.AddWithValue(
-                            "@CategoryName", categoryName.Trim());
-
-                        categoryId = Convert.ToInt32(
-                            await insertCategoryCommand.ExecuteScalarAsync());
-                    }
+                    categoryId = Convert.ToInt32(existingId);
                 }
-
-                await using var linkCommand = new SqlCommand(
-                    OrganiserQueries.LinkEventCategory,
-                    connection,
-                    transaction);
-
-                linkCommand.Parameters.AddWithValue("@CategoryId", categoryId);
-                linkCommand.Parameters.AddWithValue("@EventId", eventId);
-
-                await linkCommand.ExecuteNonQueryAsync();
+                else
+                {
+                    return;
+                }
             }
+
+            await using var linkCommand = new SqlCommand(
+                   OrganiserQueries.LinkEventCategory,
+                   connection,
+                   transaction);
+
+            linkCommand.Parameters.AddWithValue("@CategoryId", categoryId);
+            linkCommand.Parameters.AddWithValue("@EventId", eventId);
+
+            await linkCommand.ExecuteNonQueryAsync();
         }
 
         // Nieuwe velden voor INSERT en UPDATE.

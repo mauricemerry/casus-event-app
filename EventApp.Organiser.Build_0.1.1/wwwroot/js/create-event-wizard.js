@@ -760,7 +760,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `
             <div class="ticket-row">
                 <input class="ticket-name"
-                       name="Input.Tickets[${i}].TicketType"
+                       name="Input.Tickets[${i}].Name"
                        placeholder="Naam (bijv. Volwassenen)" />
 
                 <div class="ticket-price-wrap">
@@ -773,7 +773,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
 
                 <select class="ticket-kind"
-                        name="Input.Tickets[${i}].DateType">
+                        name="Input.Tickets[${i}].TypeName">
                     <option>Gratis</option>
                     <option selected>Dagticket</option>
                     <option>Periode</option>
@@ -783,7 +783,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="ticket-dates">
                     <div class="ticket-single">
                         <input type="date"
-                               name="Input.Tickets[${i}].TicketDate" />
+                               name="Input.Tickets[${i}].Date" />
                     </div>
 
                     <div class="ticket-slot">
@@ -1040,21 +1040,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         box("Extra informatie", [
             "Categorie: " +
-            val("Input.SelectedCategory"),
+            val("Input.CategoryName"),
 
             "Tags: " +
             tagValues.join(", "),
 
             "Toegankelijkheid: " +
             $$(
-                'input[name="Input.AccessibilityOptions"]:checked'
+                'input[name="Input.AccessibilityOptionDescriptions"]:checked'
             )
                 .map(input => input.value)
                 .join(", "),
 
             "Overige: " +
             (other.checked
-                ? val("Input.OtherAccessibilityDescription")
+                ? val("Input.CustomAccessibilityOptionDescriptions")
                 : ""),
 
             "Notities: " +
@@ -1079,17 +1079,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (tagInput.value.trim()) {
             addTag();
         }
-
-        const indoor =
-            $("#Input_IsIndoor").checked;
-
-        const outdoor =
-            $("#Input_IsOutdoor").checked;
-
-        $("#legacy-environment").value =
-            indoor && outdoor ? "Beide" :
-                indoor ? "Binnen" :
-                    outdoor ? "Buiten" : "Beide";
     });
 
     showStep(1);

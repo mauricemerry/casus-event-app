@@ -62,8 +62,8 @@
 
                             <div class="dashboard-event-meta-grid">
                                 <div class="dashboard-event-meta-item">
-                                    <span class="dashboard-event-meta-label">Binnen / Buiten</span>
-                                    <span class="dashboard-event-meta-value">@item.IndoorsOutdoors</span>
+                                    <span class="dashboard-event-meta-label">Binnen / Buiten / Online</span>
+                                    <span class="dashboard-event-meta-value">@EventApp.OrganiserPortal.Models.EventEnvironment.GetDescription(item.Environment)</span>
                                 </div>
 
                                 <div class="dashboard-event-meta-item">

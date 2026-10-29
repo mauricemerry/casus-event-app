@@ -7,16 +7,17 @@ public class CreateTicketInputModel
 {
     // Naam, bijvoorbeeld Volwassenen, Kinderen of Gratis.
     [Required, StringLength(100)]
-    public string TicketType { get; set; } = "";
+    public string Name { get; set; } = "";
 
     [Range(0, 999999)]
     public decimal Price { get; set; }
 
     // Gratis / Dagticket / Periode / Tijdslot
-    public string DateType { get; set; } = "Gratis";
+    public string TypeName { get; set; } = TicketType.FREE.Name();
+    public TicketType? Type { get; set; } = TicketType.FREE;
 
     // Voor dagticket en tijdslot
-    public DateTime? TicketDate { get; set; }
+    public DateTime? Date { get; set; }
 
     // Alleen voor tijdslot
     public TimeSpan? SlotStart { get; set; }

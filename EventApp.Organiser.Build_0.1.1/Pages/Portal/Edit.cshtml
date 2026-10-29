@@ -28,16 +28,27 @@
                     <span asp-validation-for="Input.EventName"></span>
                 </div>
 
-                <div class="portal-form-group">
-                    <label asp-for="Input.IndoorsOutdoors">@EventApp.OrganiserPortal.Models.IndoorsOutdoors.MESSAGES_NATURAL_LIST</label>
-                    <select asp-for="Input.IndoorsOutdoors">
-                        <option value="">Kies...</option>
-                        @foreach (var message in EventApp.OrganiserPortal.Models.IndoorsOutdoors.MESSAGES)
-                        {
-                        <option value=@message>@message</option>
-                        }
-                    </select>
-                    <span asp-validation-for="Input.IndoorsOutdoors"></span>
+                <div class="event-panel">
+                    <h3>Omgeving</h3>
+                    <p>Meerdere opties mogelijk</p>
+
+                    <div class="choice-grid">
+                        <label class="choice">
+                            <input asp-for="Input.IsIndoor"
+                                    type="checkbox" />
+                            Binnen
+                        </label>
+                        <label class="choice">
+                            <input asp-for="Input.IsOutdoor"
+                                    type="checkbox" />
+                            Buiten
+                        </label>
+                        <label class="choice">
+                            <input asp-for="Input.IsOnline"
+                                    type="checkbox" />
+                            Online
+                        </label>
+                    </div>
                 </div>
 
                 <div class="portal-form-group portal-form-group--full">
@@ -84,9 +95,9 @@
                                 <div class="portal-ticket-row">
                                     <div class="portal-ticket-fields">
                                         <div class="portal-form-group">
-                                            <label asp-for="Input.Tickets[i].TicketType">Ticketsoort</label>
-                                            <input asp-for="Input.Tickets[i].TicketType" />
-                                            <span asp-validation-for="Input.Tickets[i].TicketType"></span>
+                                            <label asp-for="Input.Tickets[i].Name">Ticketsoort</label>
+                                            <input asp-for="Input.Tickets[i].Name" />
+                                            <span asp-validation-for="Input.Tickets[i].Name"></span>
                                         </div>
 
                                         <div class="portal-form-group">
@@ -174,23 +185,18 @@
                 </div>
 
                 <div class="portal-form-group portal-form-group--full">
-                    <label for="categories-input">Categorieën</label>
-                    <div id="categories-tagbox" class="portal-tagbox"></div>
-                    <input id="categories-input"
-                           type="text"
-                           class="portal-tag-input"
-                           placeholder="Typ een categorie en druk op Enter"
-                           autocomplete="off" />
-                    <div id="categories-suggestions" class="portal-tag-suggestions"></div>
-                    <div id="categories-hidden-inputs">
-                        @if (Model.Input.Categories != null)
-                        {
-                            for (var i = 0; i < Model.Input.Categories.Count; i++)
-                            {
-                                <input type="hidden" name="Input.Categories[@i]" value="@Model.Input.Categories[i]" />
-                            }
-                        }
-                    </div>
+                    <label asp-for="Input.CategoryName">
+                        Categorie
+                    </label>
+                    <select asp-for="Input.CategoryName">
+                        <option value="">Kies categorie</option>
+                        <option>Muziek</option>
+                        <option>Festival</option>
+                        <option>Theater</option>
+                        <option>Sport</option>
+                        <option>Workshop</option>
+                        <option>Overig</option>
+                    </select>
                 </div>
 
                 <div class="portal-form-group portal-form-group--full">
@@ -203,11 +209,11 @@
                            autocomplete="off" />
                     <div id="accessibility-suggestions" class="portal-tag-suggestions"></div>
                     <div id="accessibility-hidden-inputs">
-                        @if (Model.Input.AccessibilityOptions != null)
+                        @if (Model.Input.AccessibilityOptionDescriptions != null)
                         {
-                            for (var i = 0; i < Model.Input.AccessibilityOptions.Count; i++)
+                            for (var i = 0; i < Model.Input.AccessibilityOptionDescriptions.Count; i++)
                             {
-                                <input type="hidden" name="Input.AccessibilityOptions[@i]" value="@Model.Input.AccessibilityOptions[i]" />
+                                <input type="hidden" name="Input.AccessibilityOptions[@i]" value="@Model.Input.AccessibilityOptionDescriptions[i]" />
                             }
                         }
                     </div>

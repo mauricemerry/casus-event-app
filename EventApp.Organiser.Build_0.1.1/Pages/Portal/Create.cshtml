@@ -69,10 +69,6 @@
             <div asp-validation-summary="All"
                  class="portal-validation-summary"></div>
 
-            <input asp-for="Input.IndoorsOutdoors"
-                   type="hidden"
-                   id="legacy-environment" />
-
             <!-- STAP 1: BASIS -->
             <section data-content-step="1" class="wizard-step">
                 <h2>Basis</h2>
@@ -145,10 +141,9 @@
 
                     <div class="details-right">
                         <div class="event-panel portal-form-group photo-panel">
-                            <label for="images-input">Foto's</label>
+                            <label asp-for="Input.Images" for="images-input">Foto's</label>
 
-                            <input id="images-input"
-                                   name="Images"
+                            <input asp-for="Input.Images" id="images-input"
                                    type="file"
                                    accept=".jpg,.jpeg,.png,.webp"
                                    multiple
@@ -187,14 +182,14 @@
                                     <input type="checkbox"
                                            name="Input.AccessibilityOptions"
                                            value="@option"
-                                           checked="@(Model.Input.AccessibilityOptions.Contains(option))" />
+                                           checked="@(Model.Input.AccessibilityOptionDescriptions.Contains(option))" />
                                     @option
                                 </label>
                             }
                         </div>
 
                         <label class="choice full-choice">
-                            <input asp-for="Input.HasOtherAccessibility"
+                            <input asp-for="Input.HasCustomAccessibilityOptions"
                                    type="checkbox"
                                    id="other-access" />
                             Overige
@@ -203,10 +198,10 @@
                         <div id="other-access-wrap"
                              class="portal-form-group"
                              hidden>
-                            <label asp-for="Input.OtherAccessibilityDescription">
+                            <label asp-for="Input.CustomAccessibilityOptionDescriptions">
                                 Toelichting overige toegankelijkheid
                             </label>
-                            <textarea asp-for="Input.OtherAccessibilityDescription"
+                            <textarea asp-for="Input.CustomAccessibilityOptionDescriptions"
                                       rows="2"
                                       maxlength="240"
                                       placeholder="Beschrijf overige voorzieningen..."></textarea>
@@ -221,10 +216,10 @@
                     </div>
 
                     <div class="event-panel portal-form-group">
-                        <label asp-for="Input.SelectedCategory">
+                        <label asp-for="Input.CategoryName">
                             Categorie
                         </label>
-                        <select asp-for="Input.SelectedCategory">
+                        <select asp-for="Input.CategoryName">
                             <option value="">Kies categorie</option>
                             <option>Muziek</option>
                             <option>Festival</option>
@@ -440,7 +435,7 @@
                         var ticket = Model.Input.Tickets[i];
 
                         <div class="ticket-row">
-                            <input asp-for="Input.Tickets[i].TicketType"
+                            <input asp-for="Input.Tickets[i].Name"
                                    class="ticket-name"
                                    placeholder="Naam"
                                    aria-label="Ticketnaam" />
@@ -455,7 +450,7 @@
                                        aria-label="Ticketprijs" />
                             </div>
 
-                            <select asp-for="Input.Tickets[i].DateType"
+                            <select asp-for="Input.Tickets[i].TypeName"
                                     class="ticket-kind"
                                     aria-label="Tickettype">
                                 <option>Gratis</option>
@@ -466,7 +461,7 @@
 
                             <div class="ticket-dates">
                                 <div class="ticket-single">
-                                    <input asp-for="Input.Tickets[i].TicketDate"
+                                    <input asp-for="Input.Tickets[i].Date"
                                            type="date"
                                            aria-label="Ticketdatum" />
                                 </div>

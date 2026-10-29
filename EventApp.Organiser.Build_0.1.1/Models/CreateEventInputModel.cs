@@ -1,4 +1,5 @@
 ﻿
+using Sparkly.OrganiserPortal.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventApp.OrganiserPortal.Models;
@@ -15,10 +16,6 @@ public class CreateEventInputModel
     [StringLength(500)]
     public string? ShortDescription { get; set; }
 
-    // Bestaande Edit-pagina blijft dit veld gebruiken.
-    [Required]
-    public string IndoorsOutdoors { get; set; } = "";
-
     // Meerdere omgevingen tegelijk mogelijk.
     public bool IsIndoor { get; set; }
     public bool IsOutdoor { get; set; }
@@ -28,6 +25,7 @@ public class CreateEventInputModel
     [Required]
     public string Description { get; set; } = "";
 
+    public List<IFormFile> Images { get; set; } = new();
     public List<ImageCropPositionInputModel> ImageCropPositions
     { get; set; } = new();
 
@@ -42,17 +40,16 @@ public class CreateEventInputModel
     // Extra informatie
     public string? Notes { get; set; }
 
-    public List<string> AccessibilityOptions
-    { get; set; } = new();
+    public List<string> AccessibilityOptionDescriptions { get; set; } = new();
+    public List<AccessibilityOption> AccessibilityOptions { get; set; } = new();
 
-    public bool HasOtherAccessibility { get; set; }
+    public bool HasCustomAccessibilityOptions { get; set; }
 
-    public string? OtherAccessibilityDescription
+    public string? CustomAccessibilityOptionDescriptions
     { get; set; }
 
-    public string? SelectedCategory { get; set; }
-
-    public List<string> Categories { get; set; } = new();
+    public string? CategoryName { get; set; } = EventCategory.MISCELLANEOUS.Name();
+    public EventCategory? Category { get; set; } = EventCategory.MISCELLANEOUS;
 
     public List<string> Tags { get; set; } = new();
 
@@ -73,31 +70,297 @@ public class CreateEventInputModel
     public bool? WheelchairAccessibleToilet { get; set; }
 
     // Tickets
-    public List<CreateTicketInputModel> Tickets
-    { get; set; } = new();
-}
+    public List<CreateTicketInputModel> Tickets { get; set; } = new();
 
-public class EventPeriodInputModel
-{
-    public string? Name { get; set; }
+    public CreateEventProblems GetProblems()
+    {
+        return this.GetProblems(CreateEventTab.ALL);
+    }
 
-    public DateTime? StartDate { get; set; }
-    public TimeSpan? StartTime { get; set; }
+    public CreateEventProblems GetProblems(CreateEventTab tab)
+    {
+        CreateEventProblems problems = new();
 
-    public DateTime? EndDate { get; set; }
-    public TimeSpan? EndTime { get; set; }
-}
+        if (tab == CreateEventTab.ALL || tab == CreateEventTab.NAME_AND_ENVIRONMENT)
+        {
+            if (string.IsNullOrWhiteSpace(this.EventName))
+            {
+                problems.AddError(CreateEventError.NO_NAME);
+            }
+            else if (this.EventName.Length > 255)
+            {
+                problems.AddError(CreateEventError.NAME_TOO_LONG);
+            }
+            if (!this.IsIndoor && !this.IsOutdoor && !this.IsOnline)
+            {
+                problems.AddError(CreateEventError.NO_ENVIRONMENT);
+            }
+            if (this.Images.Count == 0 || this.Images.Count > 10)
+            {
+                problems.AddError(CreateEventError.NO_IMAGES);
+            }
+            foreach (IFormFile image in this.Images)
+            {
+                if (image.Length == 0)
+                {
+                    problems.AddError(CreateEventError.IMAGE_EMPTY, image.Name);
+                }
+                else if (image.Length > 5 * 1024 * 1024)
+                {
+                    problems.AddError(CreateEventError.IMAGE_TOO_LARGE);
+                }
 
-public class EventLocationInputModel
-{
-    public string? Name { get; set; }
+                string[] allowedFormats =
+                [
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".webp"
+                ];
 
-    public string? City { get; set; }
-    public string? Street { get; set; }
-    public string? Number { get; set; }
-    public string? Addition { get; set; }
-    public string? PostalCode { get; set; }
+                if (!allowedFormats.Contains(Path.GetExtension(image.FileName).ToLowerInvariant()))
+                {
+                    problems.AddError(CreateEventError.IMAGE_INVALID_FORMAT, image.Name, string.Join(", ", allowedFormats));
+                }
+            }
+        }
+        if (tab == CreateEventTab.ALL || tab == CreateEventTab.DATE_AND_TIME)
+        {
+            if (this.Periods.Count == 0)
+            {
+                problems.AddError(CreateEventError.NO_PERIODS);
+            }
+            else
+            {
+                for (int i = 0; i < this.Periods.Count; i++)
+                {
+                    int periodNumber = i + 1; // 1-indexed for the user
 
-    public decimal? Latitude { get; set; }
-    public decimal? Longitude { get; set; }
+                    EventPeriodInputModel period = this.Periods[i];
+
+                    if (string.IsNullOrWhiteSpace(period.Name))
+                    {
+                        problems.AddError(CreateEventError.PERIOD_NO_NAME, periodNumber);
+                    }
+                    else if (period.Name.Length > 100)
+                    {
+                        problems.AddError(CreateEventError.PERIOD_NAME_TOO_LONG, periodNumber);
+                    }
+
+                    if (period.StartDate.HasValue && period.StartTime.HasValue && period.EndDate.HasValue && period.EndTime.HasValue)
+                    {
+                        DateTime start = period.StartDate.Value.Date.Add(period.StartTime.Value);
+                        DateTime end = period.EndDate.Value.Date.Add(period.EndTime.Value);
+
+                        if (start > end)
+                        {
+                            problems.AddError(CreateEventError.PERIOD_START_AFTER_END, periodNumber);
+                        }
+                    }
+                    else
+                    {
+                        if (!period.StartDate.HasValue)
+                        {
+                            problems.AddError(CreateEventError.PERIOD_NO_START_DATE, periodNumber);
+                        }
+                        if (!period.StartTime.HasValue)
+                        {
+                            problems.AddError(CreateEventError.PERIOD_NO_START_TIME, periodNumber);
+                        }
+                        if (!period.EndDate.HasValue)
+                        {
+                            problems.AddError(CreateEventError.PERIOD_NO_END_DATE, periodNumber);
+                        }
+                        if (!period.EndTime.HasValue)
+                        {
+                            problems.AddError(CreateEventError.PERIOD_NO_END_TIME, periodNumber);
+                        }
+                    }
+                }
+            }
+        }
+        if (tab == CreateEventTab.ALL || tab == CreateEventTab.LOCATIONS)
+        {
+            if (this.Locations.Count == 0)
+            {
+                problems.AddError(CreateEventError.NO_LOCATIONS);
+            }
+            else
+            {
+                for (int i = 0; i < this.Locations.Count; i++)
+                {
+                    int locationNumber = i + 1; // 1-indexed for the user
+
+                    EventLocationInputModel location = this.Locations[i];
+
+                    if (string.IsNullOrWhiteSpace(location.Name))
+                    {
+                        problems.AddError(CreateEventError.PERIOD_NO_NAME, locationNumber);
+                    }
+                    else if (location.Name.Length > 100)
+                    {
+                        problems.AddError(CreateEventError.PERIOD_NAME_TOO_LONG, locationNumber);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(location.City))
+                    {
+                        problems.AddError(CreateEventError.LOCATION_NO_CITY, locationNumber);
+                    }
+                    else if (location.City.Length > 100)
+                    {
+                        problems.AddError(CreateEventError.LOCATION_CITY_TOO_LONG, locationNumber);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(location.Street))
+                    {
+                        problems.AddError(CreateEventError.LOCATION_NO_STREET, locationNumber);
+                    }
+                    else if (location.Street.Length > 150)
+                    {
+                        problems.AddError(CreateEventError.LOCATION_STREET_TOO_LONG, locationNumber);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(location.Number))
+                    {
+                        problems.AddError(CreateEventError.LOCATION_NO_NUMBER, locationNumber);
+                    }
+                    else if (location.Number.Length > 20)
+                    {
+                        problems.AddError(CreateEventError.LOCATION_NUMBER_TOO_LONG, locationNumber);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(location.Addition) && location.Addition.Length > 20)
+                    {
+                        problems.AddError(CreateEventError.LOCATION_ADDITION_TOO_LONG, locationNumber);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(location.PostalCode))
+                    {
+                        problems.AddError(CreateEventError.LOCATION_NO_POSTAL_CODE, locationNumber);
+                    }
+                    else if (location.PostalCode.Length > 20)
+                    {
+                        problems.AddError(CreateEventError.LOCATION_POSTAL_CODE_TOO_LONG, locationNumber);
+                    }
+                    
+                    if (location.Longitude.HasValue && location.Latitude.HasValue)
+                    {
+                        if (location.Longitude < -180 || location.Longitude > 180 || location.Latitude < -90 || location.Latitude > 90)
+                        {
+                            problems.AddError(CreateEventError.LOCATION_INVALID_COORDINATES, locationNumber);
+                        }
+                    }
+                }
+            }
+        }
+        if (tab == CreateEventTab.ALL || tab == CreateEventTab.TICKETS)
+        {
+            for (int i = 0; i < this.Tickets.Count; i++)
+            {
+                int ticketNumber = i + 1; // 1-indexed for the user
+
+                CreateTicketInputModel ticket = this.Tickets[i];
+
+                if (string.IsNullOrWhiteSpace(ticket.Name))
+                {
+                    problems.AddError(CreateEventError.TICKET_NO_NAME);
+                }
+                else if (ticket.Name.Length > 100)
+                {
+                    problems.AddError(CreateEventError.TICKET_NAME_TOO_LONG);
+                }
+
+                if (string.IsNullOrWhiteSpace(ticket.TypeName))
+                {
+                    problems.AddError(CreateEventError.TICKET_NO_TYPE);
+                }
+                else
+                {
+                    ticket.Type = TicketType.ByName(ticket.TypeName);
+                }
+
+                if (ticket.Type == null)
+                {
+                    problems.AddError(CreateEventError.TICKET_NO_TYPE);
+                }
+                else
+                {
+                    if (ticket.Type == TicketType.FREE)
+                    {
+                        ticket.Price = 0;
+                    }
+                    if (ticket.Type == TicketType.DAY_TICKET && !ticket.Date.HasValue)
+                    {
+                        problems.AddError(CreateEventError.TICKET_NO_DATE);
+                    }
+                    if (ticket.Type == TicketType.PERIOD && !ticket.PeriodDates.Any(d => d.HasValue))
+                    {
+                        problems.AddError(CreateEventError.TICKET_NO_PERIOD);
+                    }
+                    if (ticket.Type == TicketType.TIME_SLOT)
+                    {
+                        if (ticket.SlotStart.HasValue && ticket.SlotEnd.HasValue)
+                        {
+                            if (ticket.SlotStart > ticket.SlotEnd)
+                            {
+                                problems.AddError(CreateEventError.TICKET_SLOT_START_AFTER_END);
+                            }
+                        }
+                        else
+                        {
+                            if (!ticket.SlotStart.HasValue)
+                            {
+                                problems.AddError(CreateEventError.TICKET_NO_SLOT_START);
+                            }
+                            if (!ticket.SlotEnd.HasValue)
+                            {
+                                problems.AddError(CreateEventError.TICKET_NO_SLOT_END);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (tab == CreateEventTab.ALL || tab == CreateEventTab.ACCESSIBILITY)
+        {
+            this.AccessibilityOptions = this.AccessibilityOptionDescriptions
+                .Where(d => !string.IsNullOrWhiteSpace(d))
+                .Select(d => AccessibilityOption.ByDescription(d))
+                .Where(o => o != null)
+                .ToList();
+            List<string> invalidOptions = this.AccessibilityOptionDescriptions
+                .Where(d => string.IsNullOrWhiteSpace(d) || AccessibilityOption.ByDescription(d) == null)
+                .ToList();
+
+            if (invalidOptions.Count > 0)
+            {
+                problems.AddError(CreateEventError.INVALID_ACCESSIBILITY_OPTION);
+            }
+            if (this.HasCustomAccessibilityOptions && string.IsNullOrWhiteSpace(this.CustomAccessibilityOptionDescriptions))
+            {
+                problems.AddError(CreateEventError.CUSTOM_ACCESSIBILITY_NO_DESCRIPTION);
+            }
+
+            if (string.IsNullOrWhiteSpace(this.CategoryName))
+            {
+                problems.AddError(CreateEventError.NO_CATEGORY);
+            }
+            else
+            {
+                this.Category = EventCategory.ByName(this.CategoryName);
+            }
+
+            if (this.Category == null)
+            {
+                problems.AddError(CreateEventError.NO_CATEGORY);
+            }
+
+            if (this.Tags.Any(t => t.Length > 100))
+            {
+                problems.AddError(CreateEventError.TAG_TOO_LONG);
+            }
+        }
+
+        return problems;
+    }
 }

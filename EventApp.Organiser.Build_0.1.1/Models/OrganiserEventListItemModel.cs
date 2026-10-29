@@ -4,7 +4,7 @@
     {
         public int EventId { get; set; }
         public string EventName { get; set; } = string.Empty;
-        public string IndoorsOutdoors { get; set; } = string.Empty;
+        public int Environment { get; set; }
         public string Description {  get; set; } = string.Empty;
         public string ImageUrl { get; set;  } = string.Empty;
         public decimal? MinPrice { get; set; }

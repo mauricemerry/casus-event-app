@@ -55,14 +55,14 @@ namespace EventApp.OrganiserPortal.Pages.Portal
             }
 
             Input.Tickets = Input.Tickets
-                .Where(x => !string.IsNullOrWhiteSpace(x.TicketType))
+                .Where(x => !string.IsNullOrWhiteSpace(x.Name))
                 .ToList();
 
             if (!Input.Tickets.Any())
             {
                 Input.Tickets.Add(new CreateTicketInputModel
                 {
-                    TicketType = "Gratis",
+                    Name = "Gratis",
                     Price = 0
                 });
             }

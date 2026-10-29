@@ -204,8 +204,8 @@ public sealed class EventWizardWriter
             foreach (var ticket in input.Tickets)
             {
                 bool free =
-                    ticket.DateType == "Gratis" ||
-                    ticket.TicketType.Trim().Equals(
+                    ticket.TypeName == "Gratis" ||
+                    ticket.Name.Trim().Equals(
                         "gratis",
                         StringComparison.OrdinalIgnoreCase);
 
@@ -214,19 +214,19 @@ public sealed class EventWizardWriter
                 DateTime? start = null;
                 DateTime? end = null;
 
-                if (ticket.DateType == "Dagticket" &&
-                    ticket.TicketDate.HasValue)
+                if (ticket.TypeName == "Dagticket" &&
+                    ticket.Date.HasValue)
                 {
-                    start = ticket.TicketDate.Value.Date;
+                    start = ticket.Date.Value.Date;
                 }
 
-                if (ticket.DateType == "Tijdslot" &&
-                    ticket.TicketDate.HasValue)
+                if (ticket.TypeName == "Tijdslot" &&
+                    ticket.Date.HasValue)
                 {
-                    start = ticket.TicketDate.Value.Date.Add(
+                    start = ticket.Date.Value.Date.Add(
                         ticket.SlotStart!.Value);
 
-                    end = ticket.TicketDate.Value.Date.Add(
+                    end = ticket.Date.Value.Date.Add(
                         ticket.SlotEnd!.Value);
                 }
 
@@ -246,15 +246,15 @@ public sealed class EventWizardWriter
                         @tid,@name,@price,@id,@kind,@start,@end
                     )",
                     ("@tid", ticketId),
-                    ("@name", ticket.TicketType.Trim()),
+                    ("@name", ticket.Name.Trim()),
                     ("@price", price),
                     ("@id", eventId),
-                    ("@kind", ticket.DateType),
+                    ("@kind", ticket.TypeName),
                     ("@start", start),
                     ("@end", end));
 
                 // Losse ticketdagen
-                if (ticket.DateType == "Periode")
+                if (ticket.TypeName == "Periode")
                 {
                     foreach (var date in ticket.PeriodDates
                         .Where(d => d.HasValue)
@@ -294,17 +294,17 @@ public sealed class EventWizardWriter
                 "event_accessibility_options",
                 "accessibility_option_id");
 
-            var accessibility = input.AccessibilityOptions
+            var accessibility = input.AccessibilityOptionDescriptions
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (input.HasOtherAccessibility &&
+            if (input.HasCustomAccessibilityOptions &&
                 !string.IsNullOrWhiteSpace(
-                    input.OtherAccessibilityDescription))
+                    input.CustomAccessibilityOptionDescriptions))
             {
                 accessibility.Add(
                     "Overige: " +
-                    input.OtherAccessibilityDescription.Trim());
+                    input.CustomAccessibilityOptionDescriptions.Trim());
             }
 
             foreach (string option in accessibility)
@@ -319,13 +319,13 @@ public sealed class EventWizardWriter
             }
 
             // 7. Categorie
-            if (!string.IsNullOrWhiteSpace(input.SelectedCategory))
+            if (!string.IsNullOrWhiteSpace(input.CategoryName))
             {
                 object? existing = await Scalar(
                     @"SELECT TOP 1 category_id
                       FROM dbo.event_categories
                       WHERE LOWER(category_name)=LOWER(@name)",
-                    ("@name", input.SelectedCategory));
+                    ("@name", input.CategoryName));
 
                 int categoryId;
 
@@ -337,7 +337,7 @@ public sealed class EventWizardWriter
                             (category_name,icon_name)
                             OUTPUT INSERTED.category_id
                             VALUES(@name,NULL)",
-                            ("@name", input.SelectedCategory)));
+                            ("@name", input.CategoryName)));
                 }
                 else
                 {
