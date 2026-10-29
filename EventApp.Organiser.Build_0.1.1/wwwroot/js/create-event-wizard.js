@@ -501,6 +501,111 @@ document.addEventListener("DOMContentLoaded", () => {
             lng.toFixed(6).replace(".", ",");
     }
 
+// ====================================
+// ADRESGEGEVENS AUTOMATISCH INVULLEN
+// ====================================
+
+let geocodeRequestId = 0;
+
+async function reverseGeocode(lat, lng) {
+    const row = currentLocation();
+
+    if (!row) return;
+
+    const requestId = ++geocodeRequestId;
+
+    setCoords(lat, lng);
+
+    $("#map-status").textContent =
+        "Adresgegevens ophalen...";
+
+    try {
+        const url = new URL(
+            "https://nominatim.openstreetmap.org/reverse"
+        );
+
+        url.searchParams.set("format", "jsonv2");
+        url.searchParams.set("lat", String(lat));
+        url.searchParams.set("lon", String(lng));
+        url.searchParams.set("addressdetails", "1");
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Adres opzoeken mislukt.");
+        }
+
+        const data = await response.json();
+
+        // Negeer een ouder antwoord als er inmiddels
+        // een andere pin is gekozen.
+        if (requestId !== geocodeRequestId) return;
+
+        const address = data.address;
+
+        if (!address) {
+            $("#map-status").textContent =
+                "Geen adres gevonden. Vul de gegevens handmatig in.";
+            return;
+        }
+
+        // Zoek de velden binnen de actieve locatie.
+        const city = row.querySelector('[name$=".City"]');
+        const street = row.querySelector('[name$=".Street"]');
+        const number = row.querySelector('[name$=".Number"]');
+        const addition = row.querySelector('[name$=".Addition"]');
+        const postalCode = row.querySelector('[name$=".PostalCode"]');
+
+        // Plaats: probeer verschillende mogelijke namen.
+        if (city) {
+            city.value =
+                address.city ||
+                address.town ||
+                address.village ||
+                address.municipality ||
+                address.hamlet ||
+                "";
+        }
+
+        // Straat en huisnummer.
+        if (street) {
+            street.value =
+                address.road ||
+                address.pedestrian ||
+                address.residential ||
+                address.footway ||
+                "";
+        }
+
+        if (number) {
+            number.value = address.house_number || "";
+        }
+
+        // Toevoegingen zijn niet altijd beschikbaar
+        // in de gegevens van OpenStreetMap.
+        if (addition && (address.unit || address.floor)) {
+            addition.value =
+                address.unit || address.floor;
+        }
+
+        if (postalCode) {
+            postalCode.value = address.postcode || "";
+        }
+
+        $("#map-status").textContent =
+            "Locatiegegevens automatisch ingevuld. Controleer het adres.";
+
+    } catch (error) {
+        if (requestId !== geocodeRequestId) return;
+
+        $("#map-status").textContent =
+            "Adres ophalen mislukt. Vul de gegevens handmatig in.";
+
+        console.error("Adres ophalen mislukt:", error);
+    }
+}
+
+
     // ====================================
     // 5. LEAFLET-KAART
     // ====================================
@@ -533,11 +638,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             ).addTo(map);
 
-            map.on("click", event => {
+            map.on("click", async event => {
                 const { lat, lng } = event.latlng;
 
                 setCoords(lat, lng);
                 setPin(lat, lng);
+
+                await reverseGeocode(lat, lng);
             });
         }
 
@@ -599,12 +706,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 { draggable: true }
             ).addTo(map);
 
-            marker.on("dragend", event => {
-                const position =
-                    event.target.getLatLng();
+            marker.on("dragend", async event => {
+                const position = event.target.getLatLng();
 
-                setCoords(position.lat, position.lng);
-                setPin(position.lat, position.lng);
+                await reverseGeocode(
+                    position.lat,
+                    position.lng
+                );
             });
         }
 
