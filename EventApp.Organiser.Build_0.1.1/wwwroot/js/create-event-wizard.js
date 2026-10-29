@@ -1,5 +1,6 @@
 ﻿
 document.addEventListener("DOMContentLoaded", () => {
+
     const $ = (selector, root = document) =>
         root.querySelector(selector);
 
@@ -18,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         $(`[name="${name}"]`)?.value?.trim() || "";
 
     // ====================================
-    // 1. HOOFDNAVIGATIE
+    // 1. HOOFDNAVIGATIE: 6 STAPPEN
     // ====================================
 
     function showStep(n) {
@@ -37,16 +38,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         $("#previous-step").hidden = step === 1;
+        $("#previous-step").disabled = step === 1;
         $("#next-step").hidden = step === 6;
         $("#publish-event").hidden = step !== 6;
 
-        $("#step-counter").textContent = `Stap ${step} van 5`;
+        $("#step-counter").textContent =
+            `Stap ${step} van 6`;
 
-        if (step === 5) renderSummary();
-
-        if (step === 4 && extra === "locations") {
-            setTimeout(refreshMap, 40);
+        if (step === 5) {
+            renderSummary();
         }
+
+        // Kaart bijwerken zodra de nieuwe stap zichtbaar is.
+        setTimeout(refreshMap, 50);
     }
 
     $$("[data-step]").forEach(button => {
@@ -82,9 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         });
 
-        if (name === "locations" && step === 4) {
-            setTimeout(refreshMap, 40);
-        }
+        setTimeout(refreshMap, 40);
     }
 
     $$("[data-extra]").forEach(button => {
@@ -103,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     syncOther();
 
     // ====================================
-    // 3. DYNAMISCHE PERIODES - GEFIXT
+    // 3. DYNAMISCHE PERIODES
     // ====================================
 
     const periodFields = [
@@ -123,12 +125,15 @@ document.addEventListener("DOMContentLoaded", () => {
         /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(value);
 
     function getExistingPeriodValues(row) {
-        const inputs = $$("input:not([type='hidden'])", row);
+        const inputs =
+            $$("input:not([type='hidden'])", row);
 
         function namedValue(key) {
             const input = inputs.find(field =>
                 field.dataset.periodField === key ||
-                new RegExp(`\\.${key}$`).test(field.name || "")
+                new RegExp(`\\.${key}$`).test(
+                    field.name || ""
+                )
             );
 
             return input?.value?.trim() || "";
@@ -158,25 +163,45 @@ document.addEventListener("DOMContentLoaded", () => {
         for (const value of [startDate, endDate]) {
             if (value) {
                 const pos = remainingDates.indexOf(value);
-                if (pos !== -1) remainingDates.splice(pos, 1);
+
+                if (pos !== -1) {
+                    remainingDates.splice(pos, 1);
+                }
             }
         }
 
         for (const value of [startTime, endTime]) {
             if (value) {
                 const pos = remainingTimes.indexOf(value);
-                if (pos !== -1) remainingTimes.splice(pos, 1);
+
+                if (pos !== -1) {
+                    remainingTimes.splice(pos, 1);
+                }
             }
         }
 
-        if (!startDate) startDate = remainingDates.shift() || "";
-        if (!endDate) endDate = remainingDates.shift() || "";
-        if (!startTime) startTime = remainingTimes.shift() || "";
-        if (!endTime) endTime = remainingTimes.shift() || "";
+        if (!startDate) {
+            startDate = remainingDates.shift() || "";
+        }
+
+        if (!endDate) {
+            endDate = remainingDates.shift() || "";
+        }
+
+        if (!startTime) {
+            startTime = remainingTimes.shift() || "";
+        }
+
+        if (!endTime) {
+            endTime = remainingTimes.shift() || "";
+        }
 
         let name = namedValue("Name");
 
-        if (!name || /^Input\.Periods\[\d+\]\./.test(name)) {
+        if (
+            !name ||
+            /^Input\.Periods\[\d+\]\./.test(name)
+        ) {
             name = inputs
                 .map(input => input.value.trim())
                 .find(value =>
@@ -197,43 +222,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function reindexPeriods() {
-        $$(".period-row", periodList).forEach((row, i) => {
-            const values = getExistingPeriodValues(row);
-            const inputs = $$("input:not([type='hidden'])", row);
+        $$(".period-row", periodList).forEach(
+            (row, i) => {
+                const values =
+                    getExistingPeriodValues(row);
 
-            while (inputs.length < periodFields.length) {
-                const input = document.createElement("input");
+                const inputs =
+                    $$("input:not([type='hidden'])", row);
 
-                row.insertBefore(
-                    input,
-                    $(".remove-row", row)
-                );
+                while (inputs.length < periodFields.length) {
+                    const input =
+                        document.createElement("input");
 
-                inputs.push(input);
-            }
+                    row.insertBefore(
+                        input,
+                        $(".remove-row", row)
+                    );
 
-            periodFields.forEach(({ key, type, label }, k) => {
-                const field = inputs[k];
-
-                field.type = type;
-                field.name = `Input.Periods[${i}].${key}`;
-                field.id = `period-${i}-${key}`;
-                field.dataset.periodField = key;
-                field.setAttribute("aria-label", label);
-                field.value = values[key] || "";
-
-                if (key === "Name") {
-                    field.placeholder = "Naam periode";
-                    field.maxLength = 100;
-                } else {
-                    field.removeAttribute("placeholder");
+                    inputs.push(input);
                 }
-            });
-        });
+
+                periodFields.forEach(
+                    ({ key, type, label }, k) => {
+                        const field = inputs[k];
+
+                        field.type = type;
+                        field.name =
+                            `Input.Periods[${i}].${key}`;
+
+                        field.id = `period-${i}-${key}`;
+                        field.dataset.periodField = key;
+                        field.setAttribute("aria-label", label);
+                        field.value = values[key] || "";
+
+                        if (key === "Name") {
+                            field.placeholder = "Naam periode";
+                            field.maxLength = 100;
+                        } else {
+                            field.removeAttribute("placeholder");
+                        }
+                    }
+                );
+            }
+        );
     }
 
     $("#add-period").addEventListener("click", () => {
-        periodList.insertAdjacentHTML("beforeend", `
+        periodList.insertAdjacentHTML(
+            "beforeend",
+            `
             <div class="period-row">
                 <input type="text"
                        data-period-field="Name"
@@ -258,21 +295,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     ✕
                 </button>
             </div>
-        `);
+            `
+        );
 
         reindexPeriods();
     });
 
     periodList.addEventListener("click", event => {
-        const button = event.target.closest(".remove-row");
+        const button =
+            event.target.closest(".remove-row");
+
         if (!button) return;
 
         const rows = $$(".period-row", periodList);
 
         if (rows.length === 1) {
-            rows[0].querySelectorAll("input").forEach(input => {
-                input.value = "";
-            });
+            rows[0].querySelectorAll("input")
+                .forEach(input => {
+                    input.value = "";
+                });
+
             return;
         }
 
@@ -315,7 +357,9 @@ document.addEventListener("DOMContentLoaded", () => {
         locRows().forEach((row, i) => {
             row.hidden = i !== activeLocation;
 
-            const button = document.createElement("button");
+            const button =
+                document.createElement("button");
+
             button.type = "button";
 
             button.textContent =
@@ -341,18 +385,22 @@ document.addEventListener("DOMContentLoaded", () => {
         add.title = "Locatie toevoegen";
 
         add.addEventListener("click", addLocation);
+
         nav.appendChild(add);
     }
 
     function addLocation() {
         const i = locRows().length;
 
-        locationList.insertAdjacentHTML("beforeend", `
+        locationList.insertAdjacentHTML(
+            "beforeend",
+            `
             <div class="event-panel location-row"
                  data-location-row>
 
                 <div class="portal-form-group">
                     <label>Locatienaam</label>
+
                     <input class="location-name"
                            name="Input.Locations[${i}].Name"
                            value="Locatie ${i + 1}" />
@@ -398,9 +446,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     Locatie verwijderen
                 </button>
             </div>
-        `);
+            `
+        );
 
         activeLocation = i;
+
         renderLocationTabs();
         refreshMap();
     }
@@ -412,7 +462,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     locationList.addEventListener("click", event => {
-        if (!event.target.closest(".remove-location")) return;
+        if (!event.target.closest(".remove-location")) {
+            return;
+        }
 
         if (locRows().length === 1) {
             alert("Een hoofdlocatie is verplicht.");
@@ -438,6 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function setCoords(lat, lng) {
         const row = currentLocation();
+
         if (!row) return;
 
         $(".location-lat", row).value =
@@ -451,32 +504,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // 5. LEAFLET-KAART
     // ====================================
 
-
     function refreshMap() {
-        console.log("refreshMap called", {
-            leaflet: !!window.L,
-            step,
-            extra
-        });
-        const mapElement = $("#event-location-map");
+        const container =
+            document.getElementById("event-location-map");
 
+        // Alleen uitvoeren als de kaart zichtbaar is.
         if (
-            !mapElement ||
             !window.L ||
-            step !== 4 ||
-            extra !== "locations"
+            !container ||
+            container.getClientRects().length === 0
         ) {
-            console.warn("Kaart niet klaar:", {
-                element: !!mapElement,
-                leaflet: !!window.L,
-                step,
-                extra
-            });
             return;
         }
 
+        // Kaart maar één keer initialiseren.
         if (!map) {
-            map = L.map(mapElement).setView(
+            map = L.map(container).setView(
                 [50.8882, 5.9795],
                 13
             );
@@ -490,34 +533,41 @@ document.addEventListener("DOMContentLoaded", () => {
             ).addTo(map);
 
             map.on("click", event => {
-                setCoords(
-                    event.latlng.lat,
-                    event.latlng.lng
-                );
+                const { lat, lng } = event.latlng;
 
-                setPin(
-                    event.latlng.lat,
-                    event.latlng.lng
-                );
+                setCoords(lat, lng);
+                setPin(lat, lng);
             });
         }
 
         requestAnimationFrame(() => {
+            if (
+                container.getClientRects().length === 0
+            ) {
+                return;
+            }
+
             map.invalidateSize();
 
             const row = currentLocation();
+
             if (!row) return;
 
-            const lat = coord($(".location-lat", row));
-            const lng = coord($(".location-lng", row));
+            const latField = $(".location-lat", row);
+            const lngField = $(".location-lng", row);
+
+            const lat = coord(latField);
+            const lng = coord(lngField);
 
             if (
-                $(".location-lat", row).value &&
-                $(".location-lng", row).value &&
+                latField?.value &&
+                lngField?.value &&
                 Number.isFinite(lat) &&
                 Number.isFinite(lng) &&
-                lat >= -90 && lat <= 90 &&
-                lng >= -180 && lng <= 180
+                lat >= -90 &&
+                lat <= 90 &&
+                lng >= -180 &&
+                lng <= 180
             ) {
                 setPin(lat, lng);
                 map.setView([lat, lng], 15);
@@ -533,6 +583,112 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ====================================
+    // PIN PLAATSEN EN VERSLEPEN
+    // ====================================
+
+    function setPin(lat, lng) {
+        if (!map) return;
+
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker(
+                [lat, lng],
+                { draggable: true }
+            ).addTo(map);
+
+            marker.on("dragend", event => {
+                const position =
+                    event.target.getLatLng();
+
+                setCoords(position.lat, position.lng);
+                setPin(position.lat, position.lng);
+            });
+        }
+
+        $("#map-status").textContent =
+            `Pin gekozen: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    }
+
+    // ====================================
+    // ADRES ZOEKEN MET OPENSTREETMAP
+    // ====================================
+
+    const findLocationButton = $("#find-location");
+
+    if (findLocationButton) {
+        findLocationButton.addEventListener(
+            "click",
+            async () => {
+                const row = currentLocation();
+
+                if (!row) return;
+
+                const values = [
+                    "Street",
+                    "Number",
+                    "PostalCode",
+                    "City"
+                ]
+                    .map(key =>
+                        $(`[name$=".${key}"]`, row)?.value?.trim() || ""
+                    )
+                    .filter(Boolean);
+
+                if (!values.length) {
+                    $("#map-status").textContent =
+                        "Vul eerst adresgegevens in.";
+
+                    return;
+                }
+
+                $("#map-status").textContent =
+                    "Locatie zoeken...";
+
+                try {
+                    const url =
+                        "https://nominatim.openstreetmap.org/search" +
+                        "?format=jsonv2&limit=1&q=" +
+                        encodeURIComponent(values.join(" "));
+
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        throw new Error("Zoeken mislukt");
+                    }
+
+                    const matches = await response.json();
+
+                    if (!matches.length) {
+                        throw new Error("Geen resultaat");
+                    }
+
+                    const lat = Number(matches[0].lat);
+                    const lng = Number(matches[0].lon);
+
+                    if (
+                        !Number.isFinite(lat) ||
+                        !Number.isFinite(lng)
+                    ) {
+                        throw new Error("Ongeldige coördinaten");
+                    }
+
+                    setCoords(lat, lng);
+                    refreshMap();
+
+                } catch (error) {
+                    $("#map-status").textContent =
+                        "Adres niet gevonden. Kies zelf een pin.";
+
+                    console.error(
+                        "Locatie zoeken mislukt:",
+                        error
+                    );
+                }
+            }
+        );
+    }
 
     renderLocationTabs();
 
@@ -598,7 +754,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function addTicket() {
         const i = ticketRows().length;
 
-        tickets.insertAdjacentHTML("beforeend", `
+        tickets.insertAdjacentHTML(
+            "beforeend",
+            `
             <div class="ticket-row">
                 <input class="ticket-name"
                        name="Input.Tickets[${i}].TicketType"
@@ -651,15 +809,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     ✕
                 </button>
             </div>
-        `);
+            `
+        );
 
         syncTicket(ticketRows().at(-1));
     }
 
-    $("#add-ticket").addEventListener("click", addTicket);
+    $("#add-ticket").addEventListener(
+        "click",
+        addTicket
+    );
 
     tickets.addEventListener("input", event => {
-        const row = event.target.closest(".ticket-row");
+        const row =
+            event.target.closest(".ticket-row");
 
         if (
             row &&
@@ -670,7 +833,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     tickets.addEventListener("change", event => {
-        const row = event.target.closest(".ticket-row");
+        const row =
+            event.target.closest(".ticket-row");
 
         if (
             row &&
@@ -681,7 +845,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     tickets.addEventListener("click", event => {
-        const row = event.target.closest(".ticket-row");
+        const row =
+            event.target.closest(".ticket-row");
+
         if (!row) return;
 
         if (event.target.closest(".remove-ticket")) {
@@ -691,8 +857,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (event.target.closest(".add-day")) {
-            const list = $(".period-date-list", row);
-            const input = document.createElement("input");
+            const list =
+                $(".period-date-list", row);
+
+            const input =
+                document.createElement("input");
 
             input.type = "date";
 
@@ -717,14 +886,15 @@ document.addEventListener("DOMContentLoaded", () => {
         'input[type="hidden"]',
         tags
     )
-    .map(element => element.value)
-    .filter(Boolean);
+        .map(element => element.value)
+        .filter(Boolean);
 
     function renderTags() {
         tags.replaceChildren();
 
         tagValues.forEach((value, i) => {
-            const pill = document.createElement("button");
+            const pill =
+                document.createElement("button");
 
             pill.type = "button";
             pill.className = "tag-pill";
@@ -737,7 +907,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             tags.appendChild(pill);
 
-            const hidden = document.createElement("input");
+            const hidden =
+                document.createElement("input");
 
             hidden.type = "hidden";
             hidden.name = `Input.Tags[${i}]`;
@@ -753,7 +924,8 @@ document.addEventListener("DOMContentLoaded", () => {
             .replace(/^#/, "");
 
         const exists = tagValues.some(
-            value => value.toLowerCase() === tag.toLowerCase()
+            value =>
+                value.toLowerCase() === tag.toLowerCase()
         );
 
         if (tag && !exists) {
@@ -783,18 +955,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderSummary() {
         const root = $("#summary-content");
+
         root.replaceChildren();
 
         function box(title, lines) {
-            const panel = document.createElement("div");
+            const panel =
+                document.createElement("div");
+
             panel.className = "event-panel";
 
-            const heading = document.createElement("h3");
+            const heading =
+                document.createElement("h3");
+
             heading.textContent = title;
             panel.appendChild(heading);
 
             lines.forEach(line => {
-                const paragraph = document.createElement("p");
+                const paragraph =
+                    document.createElement("p");
+
                 paragraph.textContent = line;
                 panel.appendChild(paragraph);
             });
@@ -810,19 +989,25 @@ document.addEventListener("DOMContentLoaded", () => {
             val("Input.ShortDescription"),
             val("Input.Description"),
             [
-                $("#Input_IsIndoor")?.checked ? "Binnen" : "",
-                $("#Input_IsOutdoor")?.checked ? "Buiten" : "",
-                $("#Input_IsOnline")?.checked ? "Online" : ""
+                $("#Input_IsIndoor")?.checked
+                    ? "Binnen" : "",
+                $("#Input_IsOutdoor")?.checked
+                    ? "Buiten" : "",
+                $("#Input_IsOnline")?.checked
+                    ? "Online" : ""
             ].filter(Boolean).join(", ")
         ]);
 
-        // PERIODES - GEFIXT
+        // PERIODES
 
         box(
             "Periodes",
             $$("#period-list .period-row").map(row =>
                 periodFields.map(({ key }) =>
-                    $(`[data-period-field="${key}"]`, row)?.value || ""
+                    $(
+                        `[data-period-field="${key}"]`,
+                        row
+                    )?.value || ""
                 ).join(" | ")
             )
         );
@@ -853,19 +1038,29 @@ document.addEventListener("DOMContentLoaded", () => {
         // EXTRA INFO
 
         box("Extra informatie", [
-            "Categorie: " + val("Input.SelectedCategory"),
-            "Tags: " + tagValues.join(", "),
+            "Categorie: " +
+            val("Input.SelectedCategory"),
+
+            "Tags: " +
+            tagValues.join(", "),
+
             "Toegankelijkheid: " +
-                $$('input[name="Input.AccessibilityOptions"]:checked')
-                    .map(input => input.value)
-                    .join(", "),
+            $$(
+                'input[name="Input.AccessibilityOptions"]:checked'
+            )
+                .map(input => input.value)
+                .join(", "),
+
             "Overige: " +
-                (other.checked
-                    ? val("Input.OtherAccessibilityDescription")
-                    : ""),
-            "Notities: " + val("Input.Notes"),
+            (other.checked
+                ? val("Input.OtherAccessibilityDescription")
+                : ""),
+
+            "Notities: " +
+            val("Input.Notes"),
+
             "Afbeeldingen: " +
-                ($("#images-input").files?.length || 0)
+            ($("#images-input").files?.length || 0)
         ]);
     }
 
@@ -884,13 +1079,16 @@ document.addEventListener("DOMContentLoaded", () => {
             addTag();
         }
 
-        const indoor = $("#Input_IsIndoor").checked;
-        const outdoor = $("#Input_IsOutdoor").checked;
+        const indoor =
+            $("#Input_IsIndoor").checked;
+
+        const outdoor =
+            $("#Input_IsOutdoor").checked;
 
         $("#legacy-environment").value =
             indoor && outdoor ? "Beide" :
-            indoor ? "Binnen" :
-            outdoor ? "Buiten" : "Beide";
+                indoor ? "Binnen" :
+                    outdoor ? "Buiten" : "Beide";
     });
 
     showStep(1);
