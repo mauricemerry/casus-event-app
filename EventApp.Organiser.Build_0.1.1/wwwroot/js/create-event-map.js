@@ -34,8 +34,8 @@
     }
 
     function setCoordinates(lat, lng) {
-        latitudeInput.value = lat.toFixed(6).replace('.', ',');
-        longitudeInput.value = lng.toFixed(6).replace('.', ',');
+        latitudeInput.value = lat.toLocaleString().substring(0, 6);
+        longitudeInput.value = lng.toLocaleString().substring(0, 6);
     }
 
     function setMarker(lat, lng, shouldCenter = true) {
