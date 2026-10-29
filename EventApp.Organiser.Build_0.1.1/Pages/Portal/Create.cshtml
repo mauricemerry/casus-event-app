@@ -35,7 +35,7 @@
     <div class="portal-form-card">
         <header class="wizard-heading">
             <h1>Evenement aanmaken</h1>
-            <a href="/Portal/Dashboard" class="portal-secondary-link">
+            <a href="/Portal/Dashboard" class="remove-period-btn">
                 Annuleren
             </a>
         </header>
@@ -217,7 +217,7 @@
                         <label asp-for="Input.Notes">Notities</label>
                         <textarea asp-for="Input.Notes"
                                   rows="4"
-                                  placeholder="Extra informatie voor bezoekers..."></textarea>
+                                  placeholder="Extra toegankelijkheids informatie voor bezoekers..."></textarea>
                     </div>
 
                     <div class="event-panel portal-form-group">
@@ -287,7 +287,7 @@
                                    placeholder="Plaats" />
                         </div>
 
-                        <div class="portal-form-group">
+                        <div class="portal-form-group"> 
                             <label>Straat</label>
                             <input asp-for="Input.Locations[i].Street"
                                    placeholder="Straat" />

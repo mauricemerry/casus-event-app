@@ -20,6 +20,13 @@
             <a href="/Portal/Create" class="dashboard-add-btn">Evenement toevoegen</a>
         </div>
 
+         <div class="EventApp-topbar-search">
+            <div class="EventApp-search EventApp-search-topbar">
+                <input type="text" id="search-input" placeholder="Zoek evenementen op naam..." />
+                <button type="button" id="clear-search-btn" aria-label="Zoekveld leegmaken">×</button>
+            </div>
+        </div>
+
         @if (Model.Events.Count == 0)
         {
             <div class="dashboard-empty-state">
@@ -87,3 +94,7 @@
         }
     </div>
 </div>
+@section Scripts {
+    <script src="~/js/search.js"
+            asp-append-version="true"></script>
+}

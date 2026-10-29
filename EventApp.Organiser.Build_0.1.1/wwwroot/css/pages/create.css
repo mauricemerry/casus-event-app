@@ -770,6 +770,7 @@ button:disabled {
     justify-content: center;
     gap: 7px;
     width: 100%;
+    max-width: 150px;
     min-height: 44px;
     padding: 10px 13px;
     color: #ffd7e2;
@@ -781,6 +782,7 @@ button:disabled {
     font-weight: 700;
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    text-decoration: none;
 }
 
     .remove-period-btn::before {
