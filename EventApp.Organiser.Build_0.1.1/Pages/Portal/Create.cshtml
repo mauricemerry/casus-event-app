@@ -248,7 +248,7 @@
                         </div>
 
                         <input id="tag-text"
-                               placeholder="Typ een tag en druk op Enter"
+                               placeholder="Typ een tag en druk op Enter - een tag is iets waar je op kan zoeken om je evenement te vinden"
                                maxlength="100" />
                     </div>
                 </div>
@@ -375,11 +375,12 @@
                             {
                                 <div class="period-row">
                                     <label asp-for="Input.Periods[i].Name">
-                                        Naam periode
+                                        Openingsdag
                                     </label>
                                     <input asp-for="Input.Periods[i].Name"
                                            data-period-field="Name"
-                                           maxlength="100" />
+                                           maxlength="100"
+ />
 
                                     <label asp-for="Input.Periods[i].StartDate">
                                         Startdatum

@@ -35,12 +35,12 @@ public class CreateModel : PageModel
     {
         Input.Periods.Add(new EventPeriodInputModel
         {
-            Name = "Openingsdag"
+            Name = ""
         });
 
         Input.Locations.Add(new EventLocationInputModel
         {
-            Name = "Hoofdingang"
+            Name = "Locatie 1"
         });
     }
 

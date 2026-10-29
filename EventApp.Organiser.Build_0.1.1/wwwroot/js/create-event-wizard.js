@@ -380,6 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const add = document.createElement("button");
 
+        add.class = ".location-add-tabs button"
         add.type = "button";
         add.textContent = "+";
         add.title = "Locatie toevoegen";
