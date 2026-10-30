@@ -256,7 +256,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!environments.length) messages.push("Kies minimaal één omgeving.");
         }
 
-        if (currentStep === 3 && (!field("Input.Latitude")?.value || !field("Input.Longitude")?.value)) {
+        const firstLocation = form.querySelector('[data-location-panel="0"]');
+        const latitude = firstLocation?.querySelector(".location-lat")?.value || field("Input.Latitude")?.value;
+        const longitude = firstLocation?.querySelector(".location-lng")?.value || field("Input.Longitude")?.value;
+
+        if (currentStep === 3 && (!latitude || !longitude)) {
             messages.push("Kies een locatie op de kaart.");
         }
 
