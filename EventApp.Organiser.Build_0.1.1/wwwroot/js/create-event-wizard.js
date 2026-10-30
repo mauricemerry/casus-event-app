@@ -650,9 +650,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function coord(field) {
-        return Number(
-            (field?.value || "").replace(",", ".")
-        );
+        return Number(field?.value || "");
     }
 
     function setCoords(lat, lng) {
@@ -661,10 +659,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!row) return;
 
         $(".location-lat", row).value =
-            lat.toFixed(6).replace(".", ",");
+            lat.toLocaleString().substring(0, 6);
 
         $(".location-lng", row).value =
-            lng.toFixed(6).replace(".", ",");
+            lng.toLocaleString().substring(0, 6);
     }
 
 // ====================================

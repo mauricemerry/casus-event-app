@@ -71,6 +71,8 @@
         if (cityInput) {
             cityInput.value = address.city || address.town || address.village || address.municipality || "";
         }
+        latitudeInput.value = lat.toLocaleString().substring(0, 6);
+        longitudeInput.value = lng.toLocaleString().substring(0, 6);
     }
 
     function setMarker(lat, lng, shouldCenter = true) {

@@ -245,9 +245,9 @@ public class CreateEventInputModel
                         problems.AddError(CreateEventError.LOCATION_POSTAL_CODE_TOO_LONG, locationNumber);
                     }
                     
-                    if (location.Longitude.HasValue && location.Latitude.HasValue)
+                    if (location.Latitude.HasValue && location.Longitude.HasValue)
                     {
-                        if (location.Longitude < -180 || location.Longitude > 180 || location.Latitude < -90 || location.Latitude > 90)
+                        if (location.Latitude < -90 || location.Latitude > 90 || location.Longitude < -180 || location.Longitude > 180)
                         {
                             problems.AddError(CreateEventError.LOCATION_INVALID_COORDINATES, locationNumber);
                         }
