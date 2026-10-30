@@ -27,7 +27,7 @@ public class CreateModel : PageModel
     }
 
     [BindProperty]
-    public CreateEventInputModel Input { get; set; } = new();
+    public EventInputModel Input { get; set; } = new();
 
     public int CurrentStep { get; private set; } = 1;
 
@@ -52,7 +52,7 @@ public class CreateModel : PageModel
         Input.Tags ??= new();
         Input.AccessibilityOptionDescriptions ??= new();
 
-        CreateEventProblems problems = Input.GetProblems();
+        EventInputProblems problems = Input.GetProblems();
 
         if (problems.HasErrors())
         {
@@ -177,29 +177,29 @@ public class CreateModel : PageModel
     }
     
 
-    private static int GetFirstInvalidStep(CreateEventProblems problems)
+    private static int GetFirstInvalidStep(EventInputProblems problems)
     {
-        if (problems.HasErrors(CreateEventTab.NAME_AND_ENVIRONMENT))
+        if (problems.HasErrors(EventFormTab.NAME_AND_ENVIRONMENT))
         {
             return 1;
         }
 
-        if (problems.HasErrors(CreateEventTab.ACCESSIBILITY))
+        if (problems.HasErrors(EventFormTab.ACCESSIBILITY))
         {
             return 2;
         }
 
-        if (problems.HasErrors(CreateEventTab.LOCATIONS))
+        if (problems.HasErrors(EventFormTab.LOCATIONS))
         {
             return 3;
         }
 
-        if (problems.HasErrors(CreateEventTab.DATE_AND_TIME))
+        if (problems.HasErrors(EventFormTab.DATE_AND_TIME))
         {
             return 4;
         }
 
-        if (problems.HasErrors(CreateEventTab.TICKETS))
+        if (problems.HasErrors(EventFormTab.TICKETS))
         {
             return 5;
         }

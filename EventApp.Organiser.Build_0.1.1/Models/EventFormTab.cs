@@ -1,6 +1,6 @@
 ﻿namespace EventApp.OrganiserPortal.Models
 {
-    public enum CreateEventTab
+    public enum EventFormTab
     {
         NONE = -1,
         NAME_AND_ENVIRONMENT,

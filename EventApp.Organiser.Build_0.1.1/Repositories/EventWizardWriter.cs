@@ -19,7 +19,7 @@ public sealed class EventWizardWriter
 
     public async Task<int> SaveAsync(
         int organiserId,
-        CreateEventInputModel input)
+        EventInputModel input)
     {
         await using var db = new SqlConnection(_connectionString);
         await db.OpenAsync();

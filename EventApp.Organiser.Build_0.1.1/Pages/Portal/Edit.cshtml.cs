@@ -21,7 +21,7 @@ namespace EventApp.OrganiserPortal.Pages.Portal
         }
 
         [BindProperty]
-        public CreateEventInputModel Input { get; set; } = new();
+        public EventInputModel Input { get; set; } = new();
 
         [BindProperty(SupportsGet = true)]
         public int Id { get; set; }
@@ -67,14 +67,14 @@ namespace EventApp.OrganiserPortal.Pages.Portal
                 .Where(x => !string.IsNullOrWhiteSpace(x.Name))
                 .ToList();
 
-            foreach (CreateTicketInputModel ticket in Input.Tickets)
+            foreach (TicketInputModel ticket in Input.Tickets)
             {
                 ticket.Price ??= 0;
             }
 
             if (!Input.Tickets.Any())
             {
-                Input.Tickets.Add(new CreateTicketInputModel
+                Input.Tickets.Add(new TicketInputModel
                 {
                     Name = "Gratis",
                     Price = 0

@@ -16,7 +16,7 @@ namespace EventApp.OrganiserPortal.Pages
             _organiserRepository = organiserRepository;
         }
 
-        public List<OrganiserEventListItemModel> Events { get; set; } = [];
+        public List<DashboardEventModel> Events { get; set; } = [];
 
         public async Task OnGetAsync()
         {
