@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const previous = document.getElementById("edit-previous-step");
     const next = document.getElementById("edit-next-step");
     const save = document.getElementById("edit-save-event");
+    const headerSave = document.getElementById("edit-save-event-header");
     const counter = document.getElementById("edit-step-counter");
     let currentStep = 1;
 
@@ -243,11 +244,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function validateStep() {
+    function showErrors(messages) {
+        errors.innerHTML = `<ul>${[...new Set(messages)].map(message => `<li>${message}</li>`).join("")}</ul>`;
+        errors.hidden = false;
+        errors.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function validateStep(step = currentStep) {
         clearErrors();
         const messages = [];
 
-        if (currentStep === 1) {
+        if (step === 1) {
             const name = field("Input.EventName");
             const description = field("Input.Description");
             const environments = form.querySelectorAll('input[name^="Input.Is"]:checked');
@@ -260,11 +267,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const latitude = firstLocation?.querySelector(".location-lat")?.value || field("Input.Latitude")?.value;
         const longitude = firstLocation?.querySelector(".location-lng")?.value || field("Input.Longitude")?.value;
 
-        if (currentStep === 3 && (!latitude || !longitude)) {
+        if (step === 3 && (!latitude || !longitude)) {
             messages.push("Kies een locatie op de kaart.");
         }
 
-        if (currentStep === 4) {
+        if (step === 4) {
             const start = field("Input.StartDateTime");
             const end = field("Input.EndDateTime");
             if (start?.value && end?.value && new Date(start.value) > new Date(end.value)) {
@@ -274,8 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (messages.length) {
-            errors.innerHTML = `<ul>${[...new Set(messages)].map(message => `<li>${message}</li>`).join("")}</ul>`;
-            errors.hidden = false;
+            showErrors(messages);
             return false;
         }
 
@@ -328,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     buttons.forEach(button => button.addEventListener("click", () => {
         const target = Number(button.dataset.editStepButton);
-        showStep(target);
+        if (target === currentStep || validateStep(target)) showStep(target);
     }));
 
     previous.addEventListener("click", () => showStep(currentStep - 1));
@@ -337,11 +343,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     form.addEventListener("submit", event => {
-        if (currentStep !== 6) {
+        const submitter = event.submitter;
+        const isSave = submitter === save || submitter === headerSave;
+
+        if (!isSave && currentStep !== 6) {
             event.preventDefault();
             if (validateStep()) showStep(currentStep + 1);
         }
     });
 
     showStep(1);
+
+    const serverErrors = document.querySelector(
+        ".portal-validation-summary:not([hidden])");
+    if (serverErrors?.textContent.trim()) {
+        serverErrors.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 });
