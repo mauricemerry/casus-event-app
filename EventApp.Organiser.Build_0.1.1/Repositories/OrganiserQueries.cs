@@ -341,8 +341,8 @@ WHERE l.event_id = @EventId
         public const string UpdateEventLocation = @"
 UPDATE l
 SET
-    l.latitude = @Latitude,
-    l.longitude = @Longitude
+    l.latitude = COALESCE(@Latitude, l.latitude),
+    l.longitude = COALESCE(@Longitude, l.longitude)
 FROM dbo.locations l
 INNER JOIN dbo.events e
     ON e.location_id = l.location_id

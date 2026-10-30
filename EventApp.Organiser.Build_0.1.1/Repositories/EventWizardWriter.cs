@@ -209,7 +209,7 @@ public sealed class EventWizardWriter
                         "gratis",
                         StringComparison.OrdinalIgnoreCase);
 
-                decimal price = free ? 0 : ticket.Price;
+                decimal price = free ? 0 : ticket.Price ?? 0;
 
                 DateTime? start = null;
                 DateTime? end = null;

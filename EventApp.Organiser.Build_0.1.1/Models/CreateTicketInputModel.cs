@@ -10,7 +10,7 @@ public class CreateTicketInputModel
     public string Name { get; set; } = "";
 
     [Range(0, 999999)]
-    public decimal Price { get; set; }
+    public decimal? Price { get; set; }
 
     // Gratis / Dagticket / Periode / Tijdslot
     public string TypeName { get; set; } = TicketType.FREE.Name();

@@ -1,5 +1,4 @@
-﻿
-using System.Data;
+﻿using System.Data;
 using Microsoft.Data.SqlClient;
 using EventApp.OrganiserPortal.Models;
 using EventApp.OrganiserPortal.Queries;
@@ -480,16 +479,14 @@ namespace EventApp.OrganiserPortal.Repositories
 
                     latitudeParameter.Precision = 9;
                     latitudeParameter.Scale = 6;
-                    latitudeParameter.Value =
-                        Math.Round(input.Latitude!.Value, 6);
+                    latitudeParameter.Value = (object?)input.Latitude ?? DBNull.Value;
 
                     var longitudeParameter = locationCommand.Parameters.Add(
                         "@Longitude", SqlDbType.Decimal);
 
                     longitudeParameter.Precision = 9;
                     longitudeParameter.Scale = 6;
-                    longitudeParameter.Value =
-                        Math.Round(input.Longitude!.Value, 6);
+                    longitudeParameter.Value = (object?)input.Longitude ?? DBNull.Value;
 
                     await locationCommand.ExecuteNonQueryAsync();
                 }
@@ -667,13 +664,6 @@ namespace EventApp.OrganiserPortal.Repositories
 
                 command.Parameters.AddWithValue(
                     "@TicketType", ticket.Name);
-
-                var priceParameter = command.Parameters.Add(
-                    "@Price", SqlDbType.Decimal);
-
-                priceParameter.Precision = 10;
-                priceParameter.Scale = 2;
-                priceParameter.Value = Math.Round(ticket.Price, 2);
 
                 command.Parameters.AddWithValue("@EventId", eventId);
 

@@ -67,6 +67,11 @@ namespace EventApp.OrganiserPortal.Pages.Portal
                 .Where(x => !string.IsNullOrWhiteSpace(x.Name))
                 .ToList();
 
+            foreach (CreateTicketInputModel ticket in Input.Tickets)
+            {
+                ticket.Price ??= 0;
+            }
+
             if (!Input.Tickets.Any())
             {
                 Input.Tickets.Add(new CreateTicketInputModel
