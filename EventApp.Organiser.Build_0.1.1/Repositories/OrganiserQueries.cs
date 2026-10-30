@@ -100,6 +100,11 @@ VALUES (
     @Longitude
 );";
 
+        public const string RemoveEventImages = @"
+DELETE FROM dbo.event_images
+WHERE event_id = @EventId
+  AND image_url NOT IN (SELECT value FROM STRING_SPLIT(@KeptImageUrls, '|'));";
+
         public const string InsertEvent = @"
 INSERT INTO dbo.events (
     event_id,
@@ -241,7 +246,61 @@ FROM dbo.events e
 INNER JOIN dbo.locations l
     ON l.location_id = e.location_id
 WHERE e.event_id = @EventId
-  AND e.organiser_id = @OrganiserId;";
+  AND e.organiser_id = @OrganiserId;
+
+SELECT image_url
+FROM dbo.event_images
+WHERE event_id = @EventId
+ORDER BY sort_order, event_image_id;
+
+SELECT
+    location_name,
+    city,
+    street,
+    house_number,
+    house_number_addition,
+    postal_code,
+    latitude,
+    longitude
+FROM dbo.event_locations
+WHERE event_id = @EventId;
+
+SELECT description
+FROM dbo.event_accessibility_options
+WHERE event_id = @EventId
+ORDER BY accessibility_option_id;
+
+SELECT
+    period_name,
+    start_date,
+    end_date,
+    start_time,
+    end_time
+FROM dbo.event_dates
+WHERE event_id = @EventId
+ORDER BY start_date, start_time;
+
+SELECT
+    event_ticket_price_id,
+    ticket_type,
+    price,
+    ticket_date_type,
+    start_datetime,
+    end_datetime
+FROM dbo.event_ticket_prices
+WHERE event_id = @EventId
+ORDER BY event_ticket_price_id;
+
+SELECT TOP 1 ec.category_name
+FROM dbo.event_event_categories eec
+INNER JOIN dbo.event_categories ec
+    ON ec.category_id = eec.category_id
+WHERE eec.event_id = @EventId;
+
+SELECT tag_name
+FROM dbo.event_tags
+WHERE event_id = @EventId
+ORDER BY event_tag_id;";
 
         public const string UpdateEvent = @"
 UPDATE e
@@ -261,6 +320,22 @@ SET
     e.wheelchair_accessible_toilet = @WheelchairAccessibleToilet
 FROM dbo.events e
 WHERE e.event_id = @EventId
+  AND e.organiser_id = @OrganiserId;";
+
+        public const string UpdateEventLocations = @"
+UPDATE l
+SET
+    l.location_name = @LocationName,
+    l.city = @City,
+    l.street = @Street,
+    l.house_number = @HouseNumber,
+    l.house_number_addition = @HouseNumberAddition,
+    l.postal_code = @PostalCode,
+    l.latitude = @Latitude,
+    l.longitude = @Longitude
+FROM dbo.event_locations l
+INNER JOIN dbo.events e ON e.event_id = l.event_id
+WHERE l.event_id = @EventId
   AND e.organiser_id = @OrganiserId;";
 
         public const string UpdateEventLocation = @"

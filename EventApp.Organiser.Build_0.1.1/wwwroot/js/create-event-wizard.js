@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const form = $("#wizard-form");
 
-    let step = 1;
+    let step = Number(form.dataset.initialStep) || 1;
     let extra = "access";
     let activeLocation = 0;
     let map = null;
@@ -17,6 +17,165 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const val = name =>
         $(`[name="${name}"]`)?.value?.trim() || "";
+
+    const clientErrors = $("#wizard-client-errors");
+
+    function clearValidation(root = document) {
+        $$(".wizard-field-error", root).forEach(error => error.remove());
+        $$(".wizard-invalid", root).forEach(input => {
+            input.classList.remove("wizard-invalid");
+            input.removeAttribute("aria-invalid");
+        });
+    }
+
+    function addValidationError(input, message) {
+        input.classList.add("wizard-invalid");
+        input.setAttribute("aria-invalid", "true");
+
+        const error = document.createElement("span");
+        error.className = "wizard-field-error";
+        error.textContent = message;
+        input.parentElement.appendChild(error);
+    }
+
+    function validateField(name, message, root = document) {
+        const input = $(`[name="${name}"]`, root);
+
+        if (!input || input.value.trim()) {
+            return true;
+        }
+
+        addValidationError(input, message);
+        return false;
+    }
+
+    function validateCurrentStep() {
+        const current = $(`[data-content-step="${step}"]`);
+        clearValidation(current);
+
+        const errors = [];
+        const addError = message => errors.push(message);
+
+        if (step === 1) {
+            if (!validateField("Input.EventName", "Vul een naam voor het evenement in.")) {
+                addError("Vul een naam voor het evenement in.");
+            }
+
+            const eventName = val("Input.EventName");
+            if (eventName.length > 255) {
+                addError("Naam voor het evenement mag maximaal 255 tekens bevatten.");
+            }
+
+            const environments = $$('input[name^="Input.Is"]:checked');
+            if (environments.length === 0) {
+                addError("Kies minimaal één omgeving.");
+            }
+
+            const description = $("[name=\"Input.Description\"]");
+            if (!description.value.trim()) {
+                addValidationError(description, "Vul een omschrijving in.");
+                addError("Vul een omschrijving in.");
+            }
+
+            const files = $("#images-input").files;
+            if (!files || files.length < 1 || files.length > 10) {
+                addError("Upload minimaal 1 en maximaal 10 afbeeldingen.");
+            }
+
+            [...(files || [])].forEach(file => {
+                const extension = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+                if (file.size === 0) addError(`Afbeelding ${file.name} is leeg.`);
+                if (file.size > 5 * 1024 * 1024) addError(`Afbeelding ${file.name} is te groot.`);
+                if (![".jpg", ".jpeg", ".png", ".webp"].includes(extension)) {
+                    addError(`Afbeelding ${file.name} heeft een ongeldig formaat.`);
+                }
+            });
+        }
+
+        if (step === 2) {
+            const category = $("[name=\"Input.CategoryName\"]");
+            if (!category.value.trim()) {
+                addValidationError(category, "Kies een categorie.");
+                addError("Kies een categorie.");
+            }
+
+            const custom = $("[name=\"Input.CustomAccessibilityOptionDescriptions\"]");
+            if ($("#other-access").checked && !custom.value.trim()) {
+                addValidationError(custom, "Geef bij Overige een toelichting.");
+                addError("Geef bij Overige een toelichting.");
+            }
+        }
+
+        if (step === 3) {
+            const rows = $$("[data-location-row]");
+            if (rows.length === 0) {
+                addError("Voeg minimaal één locatie toe.");
+            }
+
+            rows.forEach((row, index) => {
+                ["Name", "City", "Street", "Number", "PostalCode"].forEach(field => {
+                    const input = $(`[name$=\"Locations[${index}].${field}\"]`, row);
+                    if (input && !input.value.trim()) {
+                        addValidationError(input, "Dit veld is verplicht.");
+                        addError(`Locatie ${index + 1}: vul alle verplichte velden in.`);
+                    }
+                });
+            });
+        }
+
+        if (step === 4) {
+            const rows = $$("#period-list .period-row");
+            if (rows.length === 0) {
+                addError("Voeg minimaal één periode toe.");
+            }
+
+            rows.forEach((row, index) => {
+                const fields = ["Name", "StartDate", "StartTime", "EndDate", "EndTime"];
+                const values = fields.map(field => $(`[data-period-field="${field}"]`, row));
+                values.forEach(input => {
+                    if (!input.value.trim()) {
+                        addValidationError(input, "Dit veld is verplicht.");
+                        addError(`Periode ${index + 1}: vul alle velden in.`);
+                    }
+                });
+
+                if (values.every(input => input.value.trim())) {
+                    const start = new Date(`${values[1].value}T${values[2].value}`);
+                    const end = new Date(`${values[3].value}T${values[4].value}`);
+                    if (start > end) {
+                        addError(`Periode ${index + 1}: beginmoment moet voor eindmoment liggen.`);
+                    }
+                }
+            });
+        }
+
+        if (step === 5) {
+            ticketRows().forEach((row, index) => {
+                const name = $(".ticket-name", row);
+                const type = $(".ticket-kind", row);
+                if (!name.value.trim()) {
+                    addValidationError(name, "Vul een ticketnaam in.");
+                    addError(`Ticket ${index + 1}: vul een naam in.`);
+                }
+                if (!type.value.trim()) {
+                    addValidationError(type, "Kies een tickettype.");
+                    addError(`Ticket ${index + 1}: kies een tickettype.`);
+                }
+            });
+        }
+
+        const uniqueErrors = [...new Set(errors)];
+        if (uniqueErrors.length > 0) {
+            clientErrors.innerHTML = `<ul>${uniqueErrors.map(error => `<li>${error}</li>`).join("")}</ul>`;
+            clientErrors.hidden = false;
+            current.querySelector(".wizard-invalid")?.focus();
+            return false;
+        }
+
+        clientErrors.hidden = true;
+        clientErrors.replaceChildren();
+        return true;
+    }
 
     // ====================================
     // 1. HOOFDNAVIGATIE: 6 STAPPEN
@@ -55,7 +214,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     $$("[data-step]").forEach(button => {
         button.addEventListener("click", () => {
-            showStep(Number(button.dataset.step));
+            const target = Number(button.dataset.step);
+            if (target <= step) {
+                showStep(target);
+            } else if (target === step + 1 && validateCurrentStep()) {
+                showStep(target);
+            }
         });
     });
 
@@ -64,7 +228,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     $("#next-step").addEventListener("click", () => {
-        showStep(step + 1);
+        if (validateCurrentStep()) {
+            showStep(step + 1);
+        }
     });
 
     // ====================================
@@ -578,7 +744,7 @@ async function reverseGeocode(lat, lng) {
         }
 
         if (number) {
-            number.value = address.house_number || "";
+            number.value = address.house_number || "0";
         }
 
         // Toevoegingen zijn niet altijd beschikbaar
@@ -1176,12 +1342,6 @@ async function reverseGeocode(lat, lng) {
     // ====================================
     // 9. FORMULIER VERZENDEN
     // ====================================
-
-    $("#next-step").addEventListener("click", () => {
-        if (tagInput.value.trim()) {
-            addTag();
-        }
-    });
 
     form.addEventListener("submit", () => {
         if (tagInput.value.trim()) {

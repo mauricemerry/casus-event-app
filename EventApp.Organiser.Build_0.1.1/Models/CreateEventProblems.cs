@@ -8,7 +8,7 @@ namespace Sparkly.OrganiserPortal.Models
 
         public void AddError(CreateEventError error, params object[] args)
         {
-            this.entries.Add(error, args);
+            this.entries[error] = args;
         }
 
         public bool HasErrors()

@@ -29,6 +29,8 @@ public class CreateModel : PageModel
     [BindProperty]
     public CreateEventInputModel Input { get; set; } = new();
 
+    public int CurrentStep { get; private set; } = 1;
+
     public void OnGet()
     {
         Input.Periods.Add(new EventPeriodInputModel
@@ -61,11 +63,14 @@ public class CreateModel : PageModel
                 ModelState.AddModelError("", message);
             }
 
+            CurrentStep = GetFirstInvalidStep(problems);
+
             return Page();
         }
 
         if (!ModelState.IsValid)
         {
+            CurrentStep = 1;
             return Page();
         }
 
@@ -169,5 +174,36 @@ public class CreateModel : PageModel
                 }
             }
         }
+    }
+    
+
+    private static int GetFirstInvalidStep(CreateEventProblems problems)
+    {
+        if (problems.HasErrors(CreateEventTab.NAME_AND_ENVIRONMENT))
+        {
+            return 1;
+        }
+
+        if (problems.HasErrors(CreateEventTab.ACCESSIBILITY))
+        {
+            return 2;
+        }
+
+        if (problems.HasErrors(CreateEventTab.LOCATIONS))
+        {
+            return 3;
+        }
+
+        if (problems.HasErrors(CreateEventTab.DATE_AND_TIME))
+        {
+            return 4;
+        }
+
+        if (problems.HasErrors(CreateEventTab.TICKETS))
+        {
+            return 5;
+        }
+
+        return 1;
     }
 }

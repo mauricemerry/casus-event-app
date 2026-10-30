@@ -2,11 +2,16 @@
     const mapElement = document.getElementById("event-location-map");
     const latitudeInput = document.getElementById("latitude-input");
     const longitudeInput = document.getElementById("longitude-input");
-    const addressInput = document.getElementById("address-input");
-    const resolveAddressBtn = document.getElementById("resolve-address-btn");
     const mapStatus = document.getElementById("map-status");
+    const firstLocation = document.querySelector('[data-location-panel="0"]');
+    const locationLatitudeInput = firstLocation?.querySelector(".location-lat");
+    const locationLongitudeInput = firstLocation?.querySelector(".location-lng");
+    const streetInput = firstLocation?.querySelector('[name="Input.Locations[0].Street"]');
+    const numberInput = firstLocation?.querySelector('[name="Input.Locations[0].Number"]');
+    const postalCodeInput = firstLocation?.querySelector('[name="Input.Locations[0].PostalCode"]');
+    const cityInput = firstLocation?.querySelector('[name="Input.Locations[0].City"]');
 
-    if (!mapElement || !latitudeInput || !longitudeInput || !addressInput || typeof L === "undefined") {
+    if (!mapElement || !latitudeInput || !longitudeInput || typeof L === "undefined") {
         return;
     }
 
@@ -36,6 +41,36 @@
     function setCoordinates(lat, lng) {
         latitudeInput.value = lat.toFixed(6).replace('.', ',');
         longitudeInput.value = lng.toFixed(6).replace('.', ',');
+
+        if (locationLatitudeInput) {
+            locationLatitudeInput.value = latitudeInput.value;
+        }
+
+        if (locationLongitudeInput) {
+            locationLongitudeInput.value = longitudeInput.value;
+        }
+    }
+
+    function setLocationFields(address) {
+        if (!address) {
+            return;
+        }
+
+        if (streetInput) {
+            streetInput.value = address.road || address.pedestrian || address.footway || "";
+        }
+
+        if (numberInput) {
+            numberInput.value = address.house_number || "0";
+        }
+
+        if (postalCodeInput) {
+            postalCodeInput.value = address.postcode || "";
+        }
+
+        if (cityInput) {
+            cityInput.value = address.city || address.town || address.village || address.municipality || "";
+        }
     }
 
     function setMarker(lat, lng, shouldCenter = true) {
@@ -85,78 +120,18 @@
                 return;
             }
 
-            const resolvedAddress = data?.display_name?.trim();
-            if (resolvedAddress) {
-                addressInput.value = resolvedAddress;
-                setStatus("Adres bijgewerkt op basis van de pin.");
-            } else {
-                setStatus("Geen adres gevonden voor deze locatie.", true);
-            }
+            setLocationFields(data?.address);
+            setStatus(data?.address
+                ? "Locatievelden bijgewerkt op basis van de pin."
+                : "Geen adres gevonden voor deze locatie.", !data?.address);
         } catch (error) {
             setStatus("Kon geen adres ophalen voor deze locatie.", true);
         }
     }
 
-    async function forwardGeocode(query) {
-        const trimmed = (query || "").trim();
-        if (!trimmed) {
-            setStatus("Vul eerst een adres in.", true);
-            return;
-        }
-
-        const requestId = ++activeRequestId;
-        setStatus("Adres zoeken...");
-
-        try {
-            const url = new URL("https://nominatim.openstreetmap.org/search");
-            url.searchParams.set("format", "jsonv2");
-            url.searchParams.set("q", trimmed);
-            url.searchParams.set("limit", "1");
-            url.searchParams.set("addressdetails", "1");
-
-            const response = await fetch(url.toString(), {
-                headers: {
-                    "Accept": "application/json"
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Geocoding mislukt (${response.status}).`);
-            }
-
-            const data = await response.json();
-
-            if (requestId !== activeRequestId) {
-                return;
-            }
-
-            if (!Array.isArray(data) || data.length === 0) {
-                setStatus("Geen locatie gevonden voor dit adres.", true);
-                return;
-            }
-
-            const bestMatch = data[0];
-            const lat = parseFloat(bestMatch.lat);
-            const lng = parseFloat(bestMatch.lon);
-
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-                setStatus("Geen geldige coördinaten ontvangen.", true);
-                return;
-            }
-
-            addressInput.value = bestMatch.display_name || trimmed;
-            setMarker(lat, lng, true);
-            setStatus("Adres gevonden en pin geplaatst.");
-        } catch (error) {
-            setStatus("Kon dit adres niet omzetten naar coördinaten.", true);
-        }
-    }
-
     if (latitudeInput.value && longitudeInput.value) {
         setMarker(initialLat, initialLng, false);
-        if (!addressInput.value.trim()) {
-            reverseGeocode(initialLat, initialLng);
-        }
+        setStatus("Bestaande locatie geladen.");
     }
 
     map.on("click", async function (e) {
@@ -164,25 +139,9 @@
         await reverseGeocode(e.latlng.lat, e.latlng.lng);
     });
 
-    if (resolveAddressBtn) {
-        resolveAddressBtn.addEventListener("click", async function () {
-            await forwardGeocode(addressInput.value);
-        });
-    }
-
-    addressInput.addEventListener("keydown", async function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            await forwardGeocode(addressInput.value);
-        }
+    window.addEventListener("resize", () => map.invalidateSize());
+    window.addEventListener("edit-location-step-visible", () => {
+        setTimeout(() => map.invalidateSize(), 50);
     });
 
-    addressInput.addEventListener("blur", async function () {
-        const hasAddress = addressInput.value.trim() !== "";
-        const hasCoordinates = latitudeInput.value && longitudeInput.value;
-
-        if (hasAddress && !hasCoordinates) {
-            await forwardGeocode(addressInput.value);
-        }
-    });
 });

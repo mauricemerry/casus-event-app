@@ -26,6 +26,8 @@ public class CreateEventInputModel
     public string Description { get; set; } = "";
 
     public List<IFormFile> Images { get; set; } = new();
+    public List<string> ExistingImageUrls { get; set; } = new();
+    public List<string> KeptImageUrls { get; set; } = new();
     public List<ImageCropPositionInputModel> ImageCropPositions
     { get; set; } = new();
 
@@ -195,11 +197,11 @@ public class CreateEventInputModel
 
                     if (string.IsNullOrWhiteSpace(location.Name))
                     {
-                        problems.AddError(CreateEventError.PERIOD_NO_NAME, locationNumber);
+                        problems.AddError(CreateEventError.LOCATION_NO_NAME, locationNumber);
                     }
                     else if (location.Name.Length > 100)
                     {
-                        problems.AddError(CreateEventError.PERIOD_NAME_TOO_LONG, locationNumber);
+                        problems.AddError(CreateEventError.LOCATION_NAME_TOO_LONG, locationNumber);
                     }
 
                     if (string.IsNullOrWhiteSpace(location.City))
@@ -263,16 +265,16 @@ public class CreateEventInputModel
 
                 if (string.IsNullOrWhiteSpace(ticket.Name))
                 {
-                    problems.AddError(CreateEventError.TICKET_NO_NAME);
+                    problems.AddError(CreateEventError.TICKET_NO_NAME, ticketNumber);
                 }
                 else if (ticket.Name.Length > 100)
                 {
-                    problems.AddError(CreateEventError.TICKET_NAME_TOO_LONG);
+                    problems.AddError(CreateEventError.TICKET_NAME_TOO_LONG, ticketNumber);
                 }
 
                 if (string.IsNullOrWhiteSpace(ticket.TypeName))
                 {
-                    problems.AddError(CreateEventError.TICKET_NO_TYPE);
+                        problems.AddError(CreateEventError.TICKET_NO_TYPE, ticketNumber);
                 }
                 else
                 {
@@ -281,7 +283,7 @@ public class CreateEventInputModel
 
                 if (ticket.Type == null)
                 {
-                    problems.AddError(CreateEventError.TICKET_NO_TYPE);
+                    problems.AddError(CreateEventError.TICKET_NO_TYPE, ticketNumber);
                 }
                 else
                 {
@@ -291,11 +293,11 @@ public class CreateEventInputModel
                     }
                     if (ticket.Type == TicketType.DAY_TICKET && !ticket.Date.HasValue)
                     {
-                        problems.AddError(CreateEventError.TICKET_NO_DATE);
+                        problems.AddError(CreateEventError.TICKET_NO_DATE, ticketNumber);
                     }
                     if (ticket.Type == TicketType.PERIOD && !ticket.PeriodDates.Any(d => d.HasValue))
                     {
-                        problems.AddError(CreateEventError.TICKET_NO_PERIOD);
+                        problems.AddError(CreateEventError.TICKET_NO_PERIOD, ticketNumber);
                     }
                     if (ticket.Type == TicketType.TIME_SLOT)
                     {
@@ -303,18 +305,18 @@ public class CreateEventInputModel
                         {
                             if (ticket.SlotStart > ticket.SlotEnd)
                             {
-                                problems.AddError(CreateEventError.TICKET_SLOT_START_AFTER_END);
+                                problems.AddError(CreateEventError.TICKET_SLOT_START_AFTER_END, ticketNumber);
                             }
                         }
                         else
                         {
                             if (!ticket.SlotStart.HasValue)
                             {
-                                problems.AddError(CreateEventError.TICKET_NO_SLOT_START);
+                                problems.AddError(CreateEventError.TICKET_NO_SLOT_START, ticketNumber);
                             }
                             if (!ticket.SlotEnd.HasValue)
                             {
-                                problems.AddError(CreateEventError.TICKET_NO_SLOT_END);
+                                problems.AddError(CreateEventError.TICKET_NO_SLOT_END, ticketNumber);
                             }
                         }
                     }

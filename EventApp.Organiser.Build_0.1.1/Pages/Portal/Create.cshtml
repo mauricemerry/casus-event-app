@@ -64,10 +64,15 @@
         <form method="post"
               enctype="multipart/form-data"
               id="wizard-form"
-              novalidate>
+              novalidate
+              data-initial-step="@Model.CurrentStep">
 
             <div asp-validation-summary="All"
                  class="portal-validation-summary"></div>
+            <div id="wizard-client-errors"
+                 class="portal-validation-summary"
+                 hidden
+                 role="alert"></div>
 
             <!-- STAP 1: BASIS -->
             <section data-content-step="1" class="wizard-step">
@@ -180,7 +185,7 @@
                             {
                                 <label class="choice">
                                     <input type="checkbox"
-                                           name="Input.AccessibilityOptions"
+                                            name="Input.AccessibilityOptionDescriptions"
                                            value="@option"
                                            checked="@(Model.Input.AccessibilityOptionDescriptions.Contains(option))" />
                                     @option

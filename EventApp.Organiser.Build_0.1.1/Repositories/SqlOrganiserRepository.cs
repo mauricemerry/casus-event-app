@@ -17,6 +17,16 @@ namespace EventApp.OrganiserPortal.Repositories
                     "Connection string 'db-eventapp' not found or unreachable.");
         }
 
+        public async Task RemoveEventImagesAsync(int eventId, List<string> keptImageUrls)
+        {
+            await using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            await using var command = new SqlCommand(OrganiserQueries.RemoveEventImages, connection);
+            command.Parameters.AddWithValue("@EventId", eventId);
+            command.Parameters.AddWithValue("@KeptImageUrls", string.Join('|', keptImageUrls ?? []));
+            await command.ExecuteNonQueryAsync();
+        }
+
         public async Task<OrganiserModel?> GetByEmailAsync(string email)
         {
             await using var connection = new SqlConnection(_connectionString);
@@ -225,7 +235,7 @@ namespace EventApp.OrganiserPortal.Repositories
 
             int env = reader.GetInt32(reader.GetOrdinal("indoors_outdoors"));
 
-            return new CreateEventInputModel
+            CreateEventInputModel eventData = new()
             {
                 EventName = reader.GetString(reader.GetOrdinal("event_name")),
 
@@ -271,6 +281,125 @@ namespace EventApp.OrganiserPortal.Repositories
                 WheelchairAccessibleToilet =
                     GetNullableBoolean(reader, "wheelchair_accessible_toilet")
             };
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    string imageUrl = GetNullableString(reader, "image_url");
+                    if (!string.IsNullOrWhiteSpace(imageUrl))
+                    {
+                        eventData.ExistingImageUrls.Add(imageUrl);
+                    }
+                }
+            }
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    EventLocationInputModel location = new()
+                    {
+                        Name = GetNullableString(reader, "location_name"),
+                        City = GetNullableString(reader, "city"),
+                        Street = GetNullableString(reader, "street"),
+                        Number = GetNullableString(reader, "house_number"),
+                        Addition = GetNullableString(reader, "house_number_addition"),
+                        PostalCode = GetNullableString(reader, "postal_code"),
+                        Latitude = GetNullableDecimal(reader, "latitude"),
+                        Longitude = GetNullableDecimal(reader, "longitude")
+                    };
+
+                    eventData.Locations.Add(location);
+                }
+            }
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    string description = GetNullableString(reader, "description");
+                    if (!string.IsNullOrWhiteSpace(description))
+                    {
+                        const string customPrefix = "Overige: ";
+                        if (description.StartsWith(customPrefix, StringComparison.OrdinalIgnoreCase))
+                        {
+                            eventData.HasCustomAccessibilityOptions = true;
+                            eventData.CustomAccessibilityOptionDescriptions = description[customPrefix.Length..];
+                        }
+                        else
+                        {
+                            eventData.AccessibilityOptionDescriptions.Add(description);
+                        }
+                    }
+                }
+            }
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    eventData.Periods.Add(new EventPeriodInputModel
+                    {
+                        Name = GetNullableString(reader, "period_name"),
+                        StartDate = GetNullableDateTime(reader, "start_date"),
+                        EndDate = GetNullableDateTime(reader, "end_date"),
+                        StartTime = GetNullableTimeSpan(reader, "start_time"),
+                        EndTime = GetNullableTimeSpan(reader, "end_time")
+                    });
+                }
+            }
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    DateTime? start = GetNullableDateTime(reader, "start_datetime");
+                    DateTime? end = GetNullableDateTime(reader, "end_datetime");
+
+                    eventData.Tickets.Add(new CreateTicketInputModel
+                    {
+                        Name = GetNullableString(reader, "ticket_type"),
+                        Price = GetNullableDecimal(reader, "price") ?? 0,
+                        TypeName = GetNullableString(reader, "ticket_date_type"),
+                        Date = start?.Date,
+                        SlotStart = start?.TimeOfDay,
+                        SlotEnd = end?.TimeOfDay
+                    });
+                }
+            }
+
+            if (await reader.NextResultAsync() && await reader.ReadAsync())
+            {
+                eventData.CategoryName = GetNullableString(reader, "category_name");
+            }
+
+            if (await reader.NextResultAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    string tag = GetNullableString(reader, "tag_name");
+                    if (!string.IsNullOrWhiteSpace(tag))
+                    {
+                        eventData.Tags.Add(tag);
+                    }
+                }
+            }
+
+            EventLocationInputModel? firstLocation = eventData.Locations.FirstOrDefault();
+            if (firstLocation != null)
+            {
+                eventData.Address = string.Join(", ", new[]
+                {
+                    firstLocation.Street,
+                    firstLocation.Number,
+                    firstLocation.Addition,
+                    firstLocation.PostalCode,
+                    firstLocation.City
+                }.Where(value => !string.IsNullOrWhiteSpace(value)));
+            }
+
+            return eventData;
         }
 
         public async Task UpdateEventAsync(
@@ -363,6 +492,27 @@ namespace EventApp.OrganiserPortal.Repositories
                         Math.Round(input.Longitude!.Value, 6);
 
                     await locationCommand.ExecuteNonQueryAsync();
+                }
+
+                EventLocationInputModel? location = input.Locations.FirstOrDefault();
+                if (location != null)
+                {
+                    await using var locationsCommand = new SqlCommand(
+                        OrganiserQueries.UpdateEventLocations,
+                        connection,
+                        transaction);
+
+                    locationsCommand.Parameters.AddWithValue("@OrganiserId", organiserId);
+                    locationsCommand.Parameters.AddWithValue("@EventId", eventId);
+                    locationsCommand.Parameters.AddWithValue("@LocationName", (object?)location.Name ?? DBNull.Value);
+                    locationsCommand.Parameters.AddWithValue("@City", (object?)location.City ?? DBNull.Value);
+                    locationsCommand.Parameters.AddWithValue("@Street", (object?)location.Street ?? DBNull.Value);
+                    locationsCommand.Parameters.AddWithValue("@HouseNumber", (object?)location.Number ?? DBNull.Value);
+                    locationsCommand.Parameters.AddWithValue("@HouseNumberAddition", (object?)location.Addition ?? DBNull.Value);
+                    locationsCommand.Parameters.AddWithValue("@PostalCode", (object?)location.PostalCode ?? DBNull.Value);
+                    locationsCommand.Parameters.AddWithValue("@Latitude", (object?)location.Latitude ?? DBNull.Value);
+                    locationsCommand.Parameters.AddWithValue("@Longitude", (object?)location.Longitude ?? DBNull.Value);
+                    await locationsCommand.ExecuteNonQueryAsync();
                 }
 
                 await transaction.CommitAsync();
@@ -676,6 +826,28 @@ namespace EventApp.OrganiserPortal.Repositories
             return reader.IsDBNull(index)
                 ? null
                 : reader.GetBoolean(index);
+        }
+
+        private static decimal? GetNullableDecimal(
+            SqlDataReader reader,
+            string columnName)
+        {
+            var index = reader.GetOrdinal(columnName);
+
+            return reader.IsDBNull(index)
+                ? null
+                : reader.GetDecimal(index);
+        }
+
+        private static TimeSpan? GetNullableTimeSpan(
+            SqlDataReader reader,
+            string columnName)
+        {
+            var index = reader.GetOrdinal(columnName);
+
+            return reader.IsDBNull(index)
+                ? null
+                : reader.GetTimeSpan(index);
         }
     }
 }

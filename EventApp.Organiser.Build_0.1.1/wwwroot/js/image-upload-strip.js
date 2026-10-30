@@ -15,8 +15,19 @@
         return;
     }
 
+    document.querySelectorAll(".existing-image-remove-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            button.closest(".existing-image-slot")?.remove();
+            render();
+        });
+    });
+
     let imageItems = [];
     let editingIndex = -1;
+
+    function existingImageCount() {
+        return document.querySelectorAll("#image-strip .existing-image-slot").length;
+    }
 
     function syncFileInput() {
         const dataTransfer = new DataTransfer();
@@ -52,11 +63,11 @@
     }
 
     function render() {
-        imageStrip.innerHTML = "";
+        imageStrip.querySelectorAll(".new-image-slot, .portal-image-slot--empty").forEach(slot => slot.remove());
 
         imageItems.forEach((item, index) => {
             const slot = document.createElement("div");
-            slot.className = "portal-image-slot";
+            slot.className = "portal-image-slot new-image-slot";
 
             const img = document.createElement("img");
             img.className = "portal-image-thumb";
@@ -108,7 +119,8 @@
             imageStrip.appendChild(slot);
         });
 
-        const emptyCount = Math.max(0, maxImages - imageItems.length);
+        const totalImageCount = existingImageCount() + imageItems.length;
+        const emptyCount = Math.max(0, maxImages - totalImageCount);
 
         for (let i = 0; i < emptyCount; i++) {
             const emptySlot = document.createElement("button");
@@ -135,7 +147,7 @@
             return;
         }
 
-        const availableSlots = maxImages - imageItems.length;
+        const availableSlots = Math.max(0, maxImages - existingImageCount() - imageItems.length);
         const filesToAdd = selectedFiles.slice(0, availableSlots);
 
         filesToAdd.forEach(file => {
