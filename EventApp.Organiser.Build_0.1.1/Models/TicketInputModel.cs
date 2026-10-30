@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EventApp.OrganiserPortal.Models;
 
-public class CreateTicketInputModel
+public class TicketInputModel
 {
     // Naam, bijvoorbeeld Volwassenen, Kinderen of Gratis.
     [Required, StringLength(100)]

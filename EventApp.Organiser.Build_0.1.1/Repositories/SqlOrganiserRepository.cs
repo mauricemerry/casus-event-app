@@ -56,10 +56,10 @@ namespace EventApp.OrganiserPortal.Repositories
             };
         }
 
-        public async Task<List<OrganiserEventListItemModel>>
+        public async Task<List<DashboardEventModel>>
             GetEventsByOrganiserIdAsync(int organiserId)
         {
-            var results = new List<OrganiserEventListItemModel>();
+            var results = new List<DashboardEventModel>();
 
             await using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -73,7 +73,7 @@ namespace EventApp.OrganiserPortal.Repositories
 
             while (await reader.ReadAsync())
             {
-                results.Add(new OrganiserEventListItemModel
+                results.Add(new DashboardEventModel
                 {
                     EventId = reader.GetInt32(reader.GetOrdinal("event_id")),
                     EventName = reader.GetString(reader.GetOrdinal("event_name")),
@@ -123,7 +123,7 @@ namespace EventApp.OrganiserPortal.Repositories
         public async Task CreateEventAsync(
             int organiserId,
             int eventId,
-            CreateEventInputModel input)
+            EventInputModel input)
         {
             await using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -211,7 +211,7 @@ namespace EventApp.OrganiserPortal.Repositories
             }
         }
 
-        public async Task<CreateEventInputModel?> GetEventForEditAsync(
+        public async Task<EventInputModel?> GetEventForEditAsync(
             int organiserId,
             int eventId)
         {
@@ -234,7 +234,7 @@ namespace EventApp.OrganiserPortal.Repositories
 
             int env = reader.GetInt32(reader.GetOrdinal("indoors_outdoors"));
 
-            CreateEventInputModel eventData = new()
+            EventInputModel eventData = new()
             {
                 EventName = reader.GetString(reader.GetOrdinal("event_name")),
 
@@ -356,7 +356,7 @@ namespace EventApp.OrganiserPortal.Repositories
                     DateTime? start = GetNullableDateTime(reader, "start_datetime");
                     DateTime? end = GetNullableDateTime(reader, "end_datetime");
 
-                    eventData.Tickets.Add(new CreateTicketInputModel
+                    eventData.Tickets.Add(new TicketInputModel
                     {
                         Name = GetNullableString(reader, "ticket_type"),
                         Price = GetNullableDecimal(reader, "price") ?? 0,
@@ -404,7 +404,7 @@ namespace EventApp.OrganiserPortal.Repositories
         public async Task UpdateEventAsync(
             int organiserId,
             int eventId,
-            CreateEventInputModel input)
+            EventInputModel input)
         {
             await using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -552,7 +552,7 @@ namespace EventApp.OrganiserPortal.Repositories
             SqlConnection connection,
             SqlTransaction transaction,
             int locationId,
-            CreateEventInputModel input)
+            EventInputModel input)
         {
             await using var command = new SqlCommand(
                 OrganiserQueries.InsertLocation,
@@ -587,7 +587,7 @@ namespace EventApp.OrganiserPortal.Repositories
             int eventId,
             int locationId,
             int organiserId,
-            CreateEventInputModel input)
+            EventInputModel input)
         {
             await using var command = new SqlCommand(
                 OrganiserQueries.InsertEvent,
@@ -640,7 +640,7 @@ namespace EventApp.OrganiserPortal.Repositories
             SqlConnection connection,
             SqlTransaction transaction,
             int eventId,
-            CreateEventInputModel input)
+            EventInputModel input)
         {
             if (input.Tickets == null || input.Tickets.Count == 0)
             {
@@ -675,7 +675,7 @@ namespace EventApp.OrganiserPortal.Repositories
             SqlConnection connection,
             SqlTransaction transaction,
             int eventId,
-            CreateEventInputModel input)
+            EventInputModel input)
         {
             if (input.AccessibilityOptionDescriptions == null ||
                 input.AccessibilityOptionDescriptions.Count == 0)
@@ -712,7 +712,7 @@ namespace EventApp.OrganiserPortal.Repositories
             SqlConnection connection,
             SqlTransaction transaction,
             int eventId,
-            CreateEventInputModel input)
+            EventInputModel input)
         {
             if (input.Category == null)
             {
@@ -755,7 +755,7 @@ namespace EventApp.OrganiserPortal.Repositories
         // Nieuwe velden voor INSERT en UPDATE.
         private static void AddEventDetailsParameters(
             SqlCommand command,
-            CreateEventInputModel input)
+            EventInputModel input)
         {
             command.Parameters.Add(
                 "@EventType", SqlDbType.NVarChar, 50).Value =

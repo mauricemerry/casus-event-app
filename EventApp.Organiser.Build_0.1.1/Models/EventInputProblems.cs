@@ -2,23 +2,23 @@
 
 namespace Sparkly.OrganiserPortal.Models
 {
-    public class CreateEventProblems
+    public class EventInputProblems
     {
-        private readonly Dictionary<CreateEventError, object[]> entries = [];
+        private readonly Dictionary<EventInputError, object[]> entries = [];
 
-        public void AddError(CreateEventError error, params object[] args)
+        public void AddError(EventInputError error, params object[] args)
         {
             this.entries[error] = args;
         }
 
         public bool HasErrors()
         {
-            return this.HasErrors(CreateEventTab.ALL);
+            return this.HasErrors(EventFormTab.ALL);
         }
 
-        public bool HasErrors(CreateEventTab tab)
+        public bool HasErrors(EventFormTab tab)
         {
-            foreach (CreateEventError error in this.entries.Keys)
+            foreach (EventInputError error in this.entries.Keys)
             {
                 if (error.IsIn(tab))
                 {
@@ -29,14 +29,14 @@ namespace Sparkly.OrganiserPortal.Models
             return false;
         }
 
-        public bool HasError(CreateEventError error)
+        public bool HasError(EventInputError error)
         {
             return this.entries.ContainsKey(error);
         }
 
-        public bool HasAnyErrors(params CreateEventError[] errors)
+        public bool HasAnyErrors(params EventInputError[] errors)
         {
-            foreach (CreateEventError error in errors)
+            foreach (EventInputError error in errors)
             {
                 if (this.HasError(error))
                 {
@@ -47,9 +47,9 @@ namespace Sparkly.OrganiserPortal.Models
             return false;
         }
 
-        public bool HasAllErrors(params CreateEventError[] errors)
+        public bool HasAllErrors(params EventInputError[] errors)
         {
-            foreach (CreateEventError error in errors)
+            foreach (EventInputError error in errors)
             {
                 if (!this.HasError(error))
                 {
@@ -64,9 +64,9 @@ namespace Sparkly.OrganiserPortal.Models
         {
             IList<string> feedback = [];
 
-            foreach (KeyValuePair<CreateEventError, object[]> entry in entries)
+            foreach (KeyValuePair<EventInputError, object[]> entry in entries)
             {
-                CreateEventError error = entry.Key;
+                EventInputError error = entry.Key;
                 object[] args = entry.Value;
 
                 try

@@ -1,6 +1,6 @@
 ﻿namespace EventApp.OrganiserPortal.Models
 {
-    public class OrganiserEventListItemModel
+    public class DashboardEventModel
     {
         public int EventId { get; set; }
         public string EventName { get; set; } = string.Empty;
